@@ -160,6 +160,8 @@ function dx = leg_ode(t, x)
 end
 
 function animate_leg(t_sol, x_sol)
+
+    Pi = 3.14;
     % --- Define constants for the leg's geometry ---
     l1 = 0.12; % length of thigh, m
     l2 = 0.08; % length of shin, m
@@ -181,7 +183,7 @@ function animate_leg(t_sol, x_sol)
     foot_trace = plot(ax, NaN, NaN, 'r--', 'LineWidth', 1.5); % For the foot's path
 
     % --- Animation Loop ---
-    for j = 1:length(t_sol)
+    for j = 1:1%length(t_sol)
         % Extract the state variables for the current time step
         hip_x = x_sol(j, 1);
         hip_y = x_sol(j, 2);
@@ -201,9 +203,11 @@ function animate_leg(t_sol, x_sol)
         knee_y = hip_y + l1*cos(q1);
        
         
-        % Foot (stance) position
-        foot_x = hip_x + l1*sin(q1) + l2*sin(q1 + q2);
-        foot_y = hip_y + l1*cos(q1) + l2*cos(q1 + q2);
+        % % Foot (stance) position
+        % foot_x = hip_x + l1*sin(q1) + l2*sin(q1 + q2);
+        % foot_y = hip_y + l1*cos(q1) + l2*cos(q1 + q2);
+        foot_x = hip_x + l1*sin(q1) + l2*sin(q1 -q2);
+        foot_y = hip_y + l1*cos(q1) + l2*cos(q1 -q2);
 
         % --- Update plot data for efficiency ---
         % Update the leg's position

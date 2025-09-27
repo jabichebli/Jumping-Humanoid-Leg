@@ -54,6 +54,8 @@ syms xddot yddot q1ddot q2ddot real
 syms m1 I1 l1 d1 m2 I2 l2 d2 g real
 syms x_hip y_hip q1 q2 real
 
+Pi = sym(pi);
+
 % Generalized coords and rates
 q  = [x; y; q1; q2];
 dq = [xdot; ydot; q1dot; q2dot];
@@ -69,16 +71,21 @@ pknee = [ x + l1*sin(q1);
           y + l1*cos(q1) ];
 
 % COM of link2 (knee->foot)
-p2 = [ x + l1*sin(q1) + d2*sin(q1 + q2);
-       y + l1*cos(q1) + d2*cos(q1 + q2) ];
+% p2 = [ x + l1*sin(q1) + d2*sin(q1 + q2);
+%        y + l1*cos(q1) + d2*cos(q1 + q2) ];
+p2 = [ x + l1*sin(q1) + d2*sin(q1 -q2);
+          y + l1*cos(q1) + d2*cos(q1 -q2) ] ;
 
 % Foot (stance) position
-pfoot = [ x + l1*sin(q1) + l2*sin(q1 + q2);
-          y + l1*cos(q1) + l2*cos(q1 + q2) ];
+% pfoot = [ x + l1*sin(q1) + l2*sin(q1 + q2);
+%           y + l1*cos(q1) + l2*cos(q1 + q2) ];
+pfoot = [ x + l1*sin(q1) + l2*sin(q1 -q2);
+          y + l1*cos(q1) + l2*cos(q1 -q2) ] ;
 
 % Total System COM
 pCOM = [ (m1 * p1(1) + m2 * p2(1))/(m1 + m2);
          (m1 * p1(2) + m2 * p2(2))/(m1 + m2)];
+
 
 % ----------------------------- Velocities --------------------------------
 % linear velocities of COMs calcualted using Jacobian: v = J_q(p) * dq

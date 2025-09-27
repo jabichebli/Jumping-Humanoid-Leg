@@ -14,5 +14,5 @@ pknee = [ x + l1*sin(q1);
           y + l1*cos(q1) ]
 
 % Foot (stance) position
-pfoot = [ x + l1*sin(q1) + l2*sin(q1 + q2 - Pi);
-          y + l1*cos(q1) + l2*cos(q1 + q2 - Pi) ]
+pfoot = [ x + l1*sin(q1) + l2*sin(q1 -q2);
+          y + l1*cos(q1) + l2*cos(q1 -q2) ]
