@@ -2,6 +2,17 @@
 
 Kinematic modelling, dynamics, and simulation of of a two link leg.
 
+## Todos:
+
+- [ ] Add in virtual constraints for keeping CoM above stance foot position
+- [ ] Add constraints for other parts to not go below the ground?
+- [ ] Calculate exit velocity and use as event to go from stance to flight
+- [ ] Add friction to joints
+- [x] Implement kinematics for leg (positions)
+- [x] Implement dynamics for leg (lagrangian)
+- [x] Implement basic simulation/animation
+- [x] Add physical constraint for stance foot to not go into the ground
+
 ## To run:
 1. run dynamics_leg.m (this generates functions that are used in simulate_leg)
 3. run simulate_leg.m

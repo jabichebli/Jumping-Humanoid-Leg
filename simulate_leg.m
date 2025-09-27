@@ -183,7 +183,7 @@ function animate_leg(t_sol, x_sol)
     foot_trace = plot(ax, NaN, NaN, 'r--', 'LineWidth', 1.5); % For the foot's path
 
     % --- Animation Loop ---
-    for j = 1:1%length(t_sol)
+    for j = 1:length(t_sol)
         % Extract the state variables for the current time step
         hip_x = x_sol(j, 1);
         hip_y = x_sol(j, 2);
