@@ -2,6 +2,9 @@
 
 Kinematic modelling, dynamics, and simulation of of a two link leg.
 
+## Kinematics:
+<img src=https://github.com/user-attachments/assets/6cbc6997-366a-475b-a0c5-b1243e4a3d14  width="500px">
+
 ## Todos:
 
 - [ ] Add in virtual constraints for keeping CoM above stance foot position
