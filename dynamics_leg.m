@@ -48,56 +48,65 @@ end
 
 % ---------------------------- Symbolic Setup -----------------------------
 % Define Symbolic Variables for 2-link leg system
-syms x y q1 q2 real
-syms xdot ydot q1dot q2dot real
-syms xddot yddot q1ddot q2ddot real
-syms m1 I1 l1 d1 m2 I2 l2 d2 g real
-syms x_hip y_hip q1 q2 real
+syms x y q1 q2 q3 real
+syms xdot ydot q1dot q2dot q3dot real
+syms xddot yddot q1ddot q2ddot q3ddot real
+syms m1 I1 l1 d1 m2 I2 l2 d2 m3 I3 l3 d3 g real
+syms x_hip y_hip real
 
 Pi = sym(pi);
 
 % Generalized coords and rates
-q  = [x; y; q1; q2];
-dq = [xdot; ydot; q1dot; q2dot];
-ddq = [xddot; yddot; q1ddot; q2ddot];
+q  = [x; y; q1; q2; q3];
+dq = [xdot; ydot; q1dot; q2dot; q3dot];
+ddq = [xddot; yddot; q1ddot; q2ddot; q3ddot];
 
 % -------------------------- Forward kinematics ---------------------------
 % COM of link1 (hip->knee)
-p1 = [ x + d1*sin(q1);
-       y + d1*cos(q1) ];
+p1 = [ x + d1*(-sin(q1));
+       y + d1*(-cos(q1)) ];
 
 % Knee position
-pknee = [ x + l1*sin(q1);
-          y + l1*cos(q1) ];
+pknee = [ x + l1*(-sin(q1));
+          y + l1*(-cos(q1)) ];
 
 % COM of link2 (knee->foot)
 % p2 = [ x + l1*sin(q1) + d2*sin(q1 + q2);
 %        y + l1*cos(q1) + d2*cos(q1 + q2) ];
-p2 = [ x + l1*sin(q1) + d2*sin(q1 -q2);
-          y + l1*cos(q1) + d2*cos(q1 -q2) ] ;
+p2 = [ x + l1*(-sin(q1)) + d2*sin(q2 - q1);
+          y + l1*(-sin(q1)) + d2*(-cos(q2 - q1)) ] ;
 
 % Foot (stance) position
-% pfoot = [ x + l1*sin(q1) + l2*sin(q1 + q2);
-%           y + l1*cos(q1) + l2*cos(q1 + q2) ];
-pfoot = [ x + l1*sin(q1) + l2*sin(q1 -q2);
-          y + l1*cos(q1) + l2*cos(q1 -q2) ] ;
+pfoot = [ x + l1*(-sin(q1)) + l2*sin(q2 - q1);
+          y + l1*(-cos(q1)) + l2*(-cos(q2 - q1)) ] ;
+
+p3 = [x + d3 * (-sin(q3));
+      y + d3 * cos(q3)] ;
+
+phip = [x + l3 * (-sin(q3));
+        y + l3 * cos(q3)] ;
+
 
 % Total System COM
-pCOM = [ (m1 * p1(1) + m2 * p2(1))/(m1 + m2);
-         (m1 * p1(2) + m2 * p2(2))/(m1 + m2)];
+pCOM = [ (m1 * p1(1) + m2 * p2(1) + m3 * p3(1))/(m1 + m2 + m3);
+         (m1 * p1(2) + m2 * p2(2) + m3 * p3(2))/(m1 + m2 + m3)];
 
 
 % ----------------------------- Velocities --------------------------------
 % linear velocities of COMs calcualted using Jacobian: v = J_q(p) * dq
 Jp1 = jacobian(p1, q);    % 2x4
 Jp2 = jacobian(p2, q);
+Jp3 = jacobian(p3, q);
 
 v1  = simplify(Jp1 * dq); % 2x1
 v2  = simplify(Jp2 * dq);
+v3  = simplify(Jp3 * dq);
 
 % angular velocities definition
-omega1 = q1dot;
-omega2 = q1dot + q2dot;
+omega3 = q3dot;
+omega1 = -q1dot;
+omega2 = -(q2dot - q1dot);
+
 
 % --------------------- Kinetic and potential energy ----------------------
 % Note for potential and kinetic energy we need to use position and
@@ -106,12 +115,14 @@ omega2 = q1dot + q2dot;
 % kinetic energy
 T1 = simplify( (1/2)*m1*(v1.'*v1) + (1/2)*I1*omega1^2 );
 T2 = simplify( (1/2)*m2*(v2.'*v2) + (1/2)*I2*omega2^2 );
-T  = simplify( T1 + T2 );
+T3 = simplify( (1/2)*m3*(v3.'*v3) + (1/2)*I3*omega3^2 );
+T  = simplify( T1 + T2 + T3);
 
 % potential energy
 U1 = m1 * g * p1(2); % p1(2) is the y-component (height)
 U2 = m2 * g * p2(2);
-U  = simplify( U1 + U2 );
+U3 = m3 * g * p3(2);
+U  = simplify( U1 + U2 + U3 );
 
 % ----------- Stance Jacobian and Stance Jacobian Derivative --------------
 % This is needed for dynamic equation with constraints 
@@ -143,6 +154,18 @@ matlabFunction(Jst, 'File', 'auto_Jst');
 matlabFunction(Jstdot, 'File', 'auto_Jstdot');
 
 
+% Define Virtual Constraints
+% y = h(q) = h_0(q) - h_d(theta(q))
+h = pCOM(1) - pfoot(1) ;
+dh_dq = jacobian(h, q) ;
+d2h__ = [jacobian(dh_dq*dq, q),   dh_dq] ;
+matlabFunction(h, 'File', 'auto_h')
+matlabFunction(dh_dq, 'File', 'auto_dh_dq')
+matlabFunction(d2h__, 'File', 'auto_d2h__')
+
+
+
+
 % % Stance dynamics (foot fixed)
 % [ddq_st, Fst] = stance_dynamics(q, dq, U, D, C, G, B, Jst, Jstdot);
 
@@ -150,13 +173,11 @@ matlabFunction(Jstdot, 'File', 'auto_Jstdot');
 % [dq_plus, Lambda] = impact_dynamics(q, dq_minus, D, Jst);
 
 
+
+
 % -------------------------------------------------------------------------
 % ---------------------------- Path Trajectory ----------------------------
 % -------------------------------------------------------------------------
-
-
-
-
 
 
 % % Time
@@ -239,56 +260,6 @@ matlabFunction(Jstdot, 'File', 'auto_Jstdot');
 % ylabel('Hip X Position [m]');
 % title('Hip Horizontal Trajectory for COM Stability');
 % grid on;
-% 
-% 
-% 
-% 
-% 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

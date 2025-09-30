@@ -26,10 +26,6 @@
 
 % Pi = sym(pi) ;
 
-
-
-
-
 % % Leg properties
 % m1 = 0.05; % mass of link 1, kg
 % I1 = 0.0001; % moment of inertia of link 1, m^4
@@ -61,10 +57,6 @@
 % x = [q ; dq] ;
 
 
-
-
-
-
 % -------------------------------------------------------------------------
 % ------------------------- Dynamics Functions ----------------------------
 % -------------------------------------------------------------------------
@@ -79,19 +71,19 @@ function simulate_leg()
 
     l1 = 0.12; % length of link 1, m
     l2 = 0.08; % length of link 2, m
+    l3 = 0.05; % length of link 3, m
     Pi = 3.14;
 
     q0 = [0;
-            sin(Pi/3)*l2+ cos(Pi/3)*l1;
-            deg2rad(240);
-            deg2rad(90)] ;
+            cos(Pi/6)*l2 + cos(Pi/3)*l1;
+            deg2rad(60);
+            deg2rad(90);
+            0] ;
 
-    dq0 = zeros(4,1) ;
+    dq0 = zeros(5,1) ;
 
     x0 = [q0;
           dq0] ;
-
-    disp(x0)
 
     [t_sol, x_sol] = ode45(@leg_ode, [0, 10], x0) ;
 
@@ -120,9 +112,9 @@ function simulate_leg()
 end
 
 function dx = leg_ode(t, x)
-    q = x(1:4) ; dq = x(5:8) ;
-    x = q(1) ; y = q(2) ; q1 = q(3) ; q2 = q(4) ;
-    dx = dq(1) ; dy = dq(2) ; q1dot = dq(3) ; q2dot = dq(4) ;
+    q = x(1:5) ; dq = x(6:10) ;
+    x = q(1) ; y = q(2) ; q1 = q(3) ; q2 = q(4) ; q3 = q(5) ;
+    dx = dq(1) ; dy = dq(2) ; q1dot = dq(3) ; q2dot = dq(4) ; q3dot = dq(5) ;
 
     % Leg properties
     m1 = 0.05; % mass of link 1, kg
@@ -135,12 +127,17 @@ function dx = leg_ode(t, x)
     l2 = 0.08; % length of link 2, m
     d2 = 0.04; % absolute distance to COM of link 2, m
 
+    m3 = 0.5; % mass of link 2, kg
+    I3 = 0.000053; % moment of inertia of link 2, m^4
+    l3 = 0.05; % length of link 2, m
+    d3 = 0.05; % absolute distance to COM of link 2, m
+
     % Pi = 3.14;
     g = 9.81; % gravity, m/s^2
 
-    D = auto_D(I1,I2,d1,d2,l1,m1,m2,q1,q2) ;
-    C = auto_C(d1,d2,l1,m1,m2,q1,q2,q1dot,q2dot) ;
-    G = auto_G(d1,d2,g,l1,m1,m2,q1,q2) ;
+    D = auto_D(I1,I2,I3,d1,d2,d3,l1,m1,m2,m3,q1,q2,q3) ;
+    C = auto_C(d1,d2,d3,l1,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot) ;
+    G = auto_G(d1,d2,d3,g,l1,m1,m2,m3,q1,q2,q3) ;
     B = auto_B ;
     
     Jst = auto_Jst(l1,l2,q1,q2) ;
@@ -153,11 +150,71 @@ function dx = leg_ode(t, x)
         -Jstdot] ;
     
     d2q_tauc = LHS \ RHS;
-    d2q = d2q_tauc(1:4) ;
+    d2q = d2q_tauc(1:5) ;
 
     dx = [dq;
           d2q] ;
+
+        % Vector fields
+    f = [dq;
+        inv(D)*(-C*dq - G)] ;
+
+    disp('debug')
+    disp(size(f))
+    disp(size(inv(D)*B))
+    g = [zeros(5, 2);
+         inv(D)*B] ;
+
+    % Control
+    % u = 0
+    u = FeedbackControl(q, dq, f, g) ;
+
+    dx = dx + f + g*u ;
 end
+
+
+function u = FeedbackControl(q, dq, f, g)
+    % q = x(1:5) ; dq = x(6:10) ;
+    x = q(1) ; y = q(2) ; q1 = q(3) ; q2 = q(4) ; q3 = q(5) ;
+    dx = dq(1) ; dy = dq(2) ; q1dot = dq(3) ; q2dot = dq(4) ; q3dot = dq(5) ;
+
+    % Leg properties
+    m1 = 0.05; % mass of link 1, kg
+    I1 = 0.0001; % moment of inertia of link 1, m^4
+    l1 = 0.12; % length of link 1, m
+    d1 = 0.06; % absolute distance to COM of link 1, m
+    
+    m2 = 0.5; % mass of link 2, kg
+    I2 = 0.000053; % moment of inertia of link 2, m^4
+    l2 = 0.08; % length of link 2, m
+    d2 = 0.04; % absolute distance to COM of link 2, m
+
+    m3 = 0.5; % mass of link 2, kg
+    I3 = 0.000053; % moment of inertia of link 2, m^4
+    l3 = 0.05; % length of link 2, m
+    d3 = 0.05; % absolute distance to COM of link 2, m
+
+    % Pi = 3.14;
+    % g = 9.81; % gravity, m/s^2
+
+    h = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,x) ;
+    dh_dq = auto_dh_dq(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3) ;
+    d2h__ = auto_d2h__(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot) ;
+
+    % Compute Lie Derivatives
+    Lfh = dh_dq * dq ;
+    Lf2h = d2h__ * f ;
+    LgLfh = d2h__ * g ;
+
+    disp(d2h__)
+    disp(LgLfh)
+
+    % PD gains
+    Kp = 5 ; Kd = 1 ;
+    u = inv(LgLfh)*(-Lf2h - Kp*h - Kd*Lfh) ;
+end
+
+
 
 function animate_leg(t_sol, x_sol)
 
@@ -165,6 +222,7 @@ function animate_leg(t_sol, x_sol)
     % --- Define constants for the leg's geometry ---
     l1 = 0.12; % length of thigh, m
     l2 = 0.08; % length of shin, m
+    l3 = 0.05;
 
     % --- Set up the figure and plot objects once ---
     figure(4); % Use a new figure window
@@ -189,6 +247,7 @@ function animate_leg(t_sol, x_sol)
         hip_y = x_sol(j, 2);
         q1    = x_sol(j, 3); % Thigh angle
         q2    = x_sol(j, 4); % Shin angle (relative to thigh)
+        q3    = x_sol(j, 5);
 
         % Calculate the Cartesian coordinates of the knee and foot
         % Assumes q1=0 is pointing straight down
@@ -199,19 +258,22 @@ function animate_leg(t_sol, x_sol)
         % foot_y = knee_y - l2 * cos(q1 + q2);
 
         % Knee position
-        knee_x = hip_x + l1*sin(q1);
-        knee_y = hip_y + l1*cos(q1);
+        knee_x = hip_x + l1*(-sin(q1));
+        knee_y = hip_y + l1*(-cos(q1));
        
         
         % % Foot (stance) position
         % foot_x = hip_x + l1*sin(q1) + l2*sin(q1 + q2);
         % foot_y = hip_y + l1*cos(q1) + l2*cos(q1 + q2);
-        foot_x = hip_x + l1*sin(q1) + l2*sin(q1 -q2);
-        foot_y = hip_y + l1*cos(q1) + l2*cos(q1 -q2);
+        foot_x = hip_x + l1*(-sin(q1)) + l2*sin(q2 -q1);
+        foot_y = hip_y + l1*(-cos(q1)) + l2*(-cos(q2 -q1)) ;
+
+        torso_x = hip_x + l3 * (-sin(q3));
+        torso_y = hip_y + l3 * cos(q3);
 
         % --- Update plot data for efficiency ---
         % Update the leg's position
-        set(leg_plot, 'XData', [hip_x, knee_x, foot_x], 'YData', [hip_y, knee_y, foot_y]);
+        set(leg_plot, 'XData', [torso_x, hip_x, knee_x, foot_x], 'YData', [torso_y, hip_y, knee_y, foot_y]);
 
         % Append the new foot position to the trace
         trace_x = [get(foot_trace, 'XData'), foot_x];
