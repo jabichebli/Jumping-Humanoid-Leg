@@ -58,6 +58,8 @@ p3 = [x - d3 * sin(q3);
 ptorso = [x - l3 * sin(q3);
         y + l3 * cos(q3)] ;
 
+
+
 % Total System COM
 pCOM = [ (m1 * p1(1) + m2 * p2(1) + m3 * p3(1))/(m1 + m2 + m3);
          (m1 * p1(2) + m2 * p2(2) + m3 * p3(2))/(m1 + m2 + m3)];
@@ -115,8 +117,8 @@ end
 
 Jstdot = simplify(Jstdot);
 % ------------------------- Dynamics Equations ----------------------------
-% q_act = [q1; q2]; % The hip angle and knee angle are being actuated
-q_act = q1; % single actuation 
+q_act = [q1; q2]; % The hip angle and knee angle are being actuated
+% q_act = q1; % single actuation 
 
 % Flight dynamics (no contact)
 [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act);   
@@ -131,17 +133,16 @@ matlabFunction(Jstdot, 'File', 'auto_Jstdot');
 % ------------------------ Virtual Constraints ----------------------------
 % Define Symbolic Variables for virual constraint
 syms Kp Kd real
-% syms u1 u2 real % for two holonomic constraints
-syms u1 real % for single holonomic constraint
+syms u1 u2 real % for two holonomic constraints
 syms lambda1 lambda2 real
 
 % Generalized input and contact force
-% u_sym = [u1; u2]; % for two holonomic constraints
-u_sym = u1; % for single holonomic constraint
+u_sym = [u1; u2]; % for two holonomic constraints
 lambda_sym = [lambda1; lambda2];
 
 % Holonomic Virtual Constraint
-h = pCOM(1) - pfoot(1); % only x-constraint, CoM above foot (horizontal alignment)
+h = [pCOM(1) - pfoot(1); % x-constraint, CoM above foot (horizontal alignment)
+    pCOM(2) - 0.32];      % y-constraint, 
 
 % Holonomic Jacobian
 Jh = jacobian(h, q); %  Jh = dh/dq 1 x 5
