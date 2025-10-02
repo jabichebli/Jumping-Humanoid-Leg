@@ -1,269 +1,51 @@
-%------------------------------------------------------------------------
-%------------------------------------------------------------------------
-% MECENG239 Final Project - Hopping Leg  (+ Front Flip as extension)
-% Course: ME239: Robotic Locomotion
-% Semester: Fall 2025
-%------------------------------------------------------------------------
-% By: Jason Abi Chebli
-% Student ID: 3042017306
-% Last Modified: 2025-09-17
-% The following is the MATLAB code used to determine the dynamics of a
-% robotic leg jumping up and down. 
-%------------------------------------------------------------------------
-%------------------------------------------------------------------------
-
-% ---------------------------- Symbolic Setup -----------------------------
-% Define Symbolic Variables for 2-link leg system
-% syms x y q1 q2 real
-% syms xdot ydot q1dot q2dot real
-% syms xddot yddot q1ddot q2ddot real
-% syms m1 I1 l1 d1 m2 I2 l2 d2 g real
-% syms q1 q2 real
-
-% Generalized coords and rates
-
-% Pi = sym(pi) ;
-
-% % Leg properties
-% m1 = 0.05; % mass of link 1, kg
-% I1 = 0.0001; % moment of inertia of link 1, m^4
-% l1 = 0.12; % length of link 1, m
-% d1 = 0.06; % absolute distance to COM of link 1, m
-% 
-% m2 = 0.5; % mass of link 2, kg
-% I2 = 0.000053; % moment of inertia of link 2, m^4
-% l2 = 0.08; % length of link 2, m
-% d2 = 0.04; % absolute distance to COM of link 2, m
-% 
-% x = 0;
-% y = sin(Pi/3)*l2+ cos(Pi/3)*l1;
-
-% q0 = [deg2rad(15);
-%       deg2rad(0)] ;
-% 
-% dq0 = zeros(2,1) ;
-% x0 = [q0;
-%       dq0] ;
-
-% x = [x ; y ; dx ; dy] ;
-
-
-% q  = [x; y; q1; q2];
-% dq = [xdot; ydot; q1dot; q2dot];
-% ddq = [xddot; yddot; q1ddot; q2ddot];
-
-% x = [q ; dq] ;
-
-
-% -------------------------------------------------------------------------
-% ------------------------- Dynamics Functions ----------------------------
-% -------------------------------------------------------------------------
-
 function simulate_leg()
+% -------------------------------------------------------------------------
+% simulate_leg.m
+% -------------------------------------------------------------------------
+% Simulates the dynamics of a 3-link hopping leg with holonomic constraints
+% and virtual constraint control. 
+%
+% REQUIREMENTS:
+%   - Symbolic functions auto_D, auto_C, auto_G, auto_B
+%   - Symbolic functions auto_h, auto_Jh, auto_d2h__
+%   - Foot position function auto_pfoot
+%   - ODE solver (ode45)
+%
+% OUTPUT:
+%   - Time series of states (q, dq)
+%   - Calls animate_leg() to visualize results
+%
+% Author: Jason Abi Chebli & Andrew Tai
+% MECENG239 Final Project - Fall 2025
+% -------------------------------------------------------------------------
 
-    clear all; close all; clc;
-    % q1 = 240*Pi/180;
-    % q2 = Pi/180 ;
-    % xdot = 0 ;
-    % ydot = 0;
-    % q1dot = 0 ;
-    % q2dot = 0 ;
+    % ---------------- Simulation Parameters ----------------
+    params.m1 = 5;   params.m2 = 3;   params.m3 = 7;
+    params.I1 = 0.1; params.I2 = 0.05; params.I3 = 0.2;
+    params.l1 = 0.5; params.l2 = 0.5; params.l3 = 0.2;
+    params.d1 = 0.25; params.d2 = 0.25; params.d3 = 0.3;
+    params.g  = 9.81;
 
-    l1 = 0.12; % length of link 1, m
-    l2 = 0.08; % length of link 2, m
-    l3 = 0.05; % length of link 3, m
-    Pi = 3.14;
+    % Virtual constraint gains
+    params.Kp = 100; 
+    params.Kd = 20;
 
-    q1 = deg2rad(45);   % 45°
-    q2 = deg2rad(90);  % -90°
-    q3 = deg2rad(0);   % torso upright
+    % Initial state: [x, y, q1, q2, q3, xdot, ydot, q1dot, q2dot, q3dot]
+    x0 = [0; 1; 0.1; -0.2; 0.0;   % initial positions
+          0; 0; 0; 0; 0];         % initial velocities
 
-    % q0 = [0;
-    %         cos(Pi/6)*l2 + cos(Pi/3)*l1;
-    %         deg2rad(60);
-    %         deg2rad(90);
-    %         0] ;
+    % Time span
+    tspan = [0 2];
 
-    q0 = [0;
-            -l1*(-cos(q1)) - l2*(-cos(q2 - q1));
-            q1;
-            q2;
-            q3] ;
+    % ODE solve
+    opts = odeset('RelTol',1e-6,'AbsTol',1e-8);
+    [t, X] = ode45(@(t,x) leg_ode(t,x,params), tspan, x0, opts);
 
-    dq0 = zeros(5,1) ;
-
-    x0 = [q0;
-          dq0] ;
-
-    [t_sol, x_sol] = ode45(@leg_ode, [0, 15], x0) ;
-
-    figure(1) ; plot(t_sol, x_sol(:,3:4)) ; grid on ;
-        legend('th1', 'th2') ; 
-        xlabel('time') ; 
-        ylabel('rad') ;
-
-    figure(2) ; plot(t_sol, x_sol(:,1:2)) ; grid on ;
-        legend('thigh height', 'knee height') ; 
-        xlabel('time') ; 
-        ylabel('height') ;
-
-    animate_leg(t_sol, x_sol) ;
-end
-
-function dx = leg_ode(t, x)
-    q = x(1:5) ; dq = x(6:10) ;
-    x = q(1) ; y = q(2) ; q1 = q(3) ; q2 = q(4) ; q3 = q(5) ;
-    dx = dq(1) ; dy = dq(2) ; q1dot = dq(3) ; q2dot = dq(4) ; q3dot = dq(5) ;
-
-    % Leg properties
-    m1 = 0.05; % mass of link 1, kg
-    I1 = 0.0001; % moment of inertia of link 1, m^4
-    l1 = 0.12; % length of link 1, m
-    d1 = 0.06; % absolute distance to COM of link 1, m
-
-    m2 = 0.5; % mass of link 2, kg
-    I2 = 0.000053; % moment of inertia of link 2, m^4
-    l2 = 0.08; % length of link 2, m
-    d2 = 0.04; % absolute distance to COM of link 2, m
-
-    m3 = 0.5; % mass of link 2, kg
-    I3 = 0.000053; % moment of inertia of link 2, m^4
-    l3 = 0.05; % length of link 2, m
-    d3 = 0.05; % absolute distance to COM of link 2, m
-
-    % Pi = 3.14;
-    g = 9.81; % gravity, m/s^2
-
-    D = auto_D(I1,I2,I3,d1,d2,d3,l1,m1,m2,m3,q1,q2,q3) ;
-    C = auto_C(d1,d2,d3,l1,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot) ;
-    G = auto_G(d1,d2,d3,g,l1,m1,m2,m3,q1,q2,q3) ;
-    B = auto_B ;
-
-    Jst = auto_Jst(l1,l2,q1,q2) ;
-    Jstdot = auto_Jstdot(l1,l2,q1,q2,q1dot,q2dot) ;
-
-    % ---- compute kinematic outputs used for contact / virtual output ----
-    % foot height (y) and foot vertical velocity:
-    % evaluate pfoot from the same formula you used when generating Jst
-    foot_y = auto_pfoot_y(l1,l2,q1,q2,y);    % create a small matlabFunction for the y-component if you don't have one
-    dfoot_y = Jst(2,:) * dq;                % vertical velocity of foot (row 2 of Jst)
-
-    h = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,x,y) ;
-    dh_dq = auto_dh_dq(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3) ;
-    d2h__ = auto_d2h__(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot) ;
-
-    f = [dq;
-        inv(D)*(-C*dq - G)] ;
-    g = [zeros(5, 2);
-         inv(D)*B] ;
-
-    % Compute Lie Derivatives
-    Lfh = dh_dq * dq ;
-    Lf2h = d2h__ * f ;
-    LgLfh = d2h__ * g ;
-
-
-    Kp = 5 ; Kd = 2 ;
-    u = inv(LgLfh)*(-Lf2h - Kp*h - Kd*Lfh) ;
-
-    RHS = [-C * dq - G + B * u;
-        -Jstdot] ;
-
-    LHS = [D, -Jst.';
-        Jst, zeros(2,2)] ;
-
-
-    d2q_tauc = LHS \ RHS;
-    d2q = d2q_tauc(1:5) ;
-
-    dx = [dq;
-          d2q] ;
-
+    % Animate result
+    animate_leg(t, X, params);
 end
 
 
-function animate_leg(t_sol, x_sol)
-
-
-    Pi = 3.14;
-    % --- Define constants for the leg's geometry ---
-    % Leg properties
-    m1 = 0.05; % mass of link 1, kg
-    I1 = 0.0001; % moment of inertia of link 1, m^4
-    l1 = 0.12; % length of link 1, m
-    d1 = 0.06; % absolute distance to COM of link 1, m
-
-    m2 = 0.5; % mass of link 2, kg
-    I2 = 0.000053; % moment of inertia of link 2, m^4
-    l2 = 0.08; % length of link 2, m
-    d2 = 0.04; % absolute distance to COM of link 2, m
-
-    m3 = 0.5; % mass of link 2, kg
-    I3 = 0.000053; % moment of inertia of link 2, m^4
-    l3 = 0.05; % length of link 2, m
-    d3 = 0.05; % absolute distance to COM of link 2, m
-
-    % --- Set up the figure and plot objects once ---
-    figure(4); % Use a new figure window
-    clf; % Clear the figure
-    ax = gca;
-    axis(ax, 'equal', [-0.4 0.4 -0.4 0.4]); % Use 'equal' for correct aspect ratio
-    hold(ax, 'on');
-    grid on;
-    xlabel('X Position (m)');
-    ylabel('Y Position (m)');
-    title('2D Bipedal Leg Animation');
-
-    % --- Initialize plot objects to get handles ---
-    ground = plot(ax, [-1 1], [0 0], 'k-', 'LineWidth', 2);
-    leg_plot = plot(ax, NaN, NaN, '-o', 'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'b');
-    foot_trace = plot(ax, NaN, NaN, 'r--', 'LineWidth', 1.5); % For the foot's path
-    com_marker = plot(ax, NaN, NaN, 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'g'); % CoM marker
-
-
-    % --- Animation Loop ---
-    for j = 1:length(t_sol)
-        % Extract the state variables for the current time step
-        hip_x = x_sol(j, 1);
-        hip_y = x_sol(j, 2);
-        q1    = x_sol(j, 3); % Thigh angle
-        q2    = x_sol(j, 4); % Shin angle (relative to thigh)
-        q3    = x_sol(j, 5);
-
-        % Knee position
-        knee_x = hip_x + l1*(-sin(q1));
-        knee_y = hip_y + l1*(-cos(q1));
-       
-        % % Foot (stance) position
-        foot_x = hip_x + l1*(-sin(q1)) + l2*sin(q2 -q1);
-        foot_y = hip_y + l1*(-cos(q1)) + l2*(-cos(q2 -q1)) ;
-
-        torso_x = hip_x + l3 * (-sin(q3));
-        torso_y = hip_y + l3 * cos(q3);
-
-        pCOM = auto_pCOM(d1,d2,d3,l1,m1,m2,m3,q1,q2,q3,hip_x,hip_y) ;
-
-        % --- Update plot data for efficiency ---
-        % Update the leg's position
-        set(leg_plot, 'XData', [torso_x, hip_x, knee_x, foot_x], 'YData', [torso_y, hip_y, knee_y, foot_y]);
-
-        % Append the new foot position to the trace
-        trace_x = [get(foot_trace, 'XData'), foot_x];
-        trace_y = [get(foot_trace, 'YData'), foot_y];
-        set(foot_trace, 'XData', trace_x, 'YData', trace_y);
-        set(com_marker, 'XData', pCOM(1), 'YData', pCOM(2));
-
-        % Update the title with the current simulation
-        title(ax, sprintf('Leg Animation | Time: %.2f s', t_sol(j)));
-        
-        % Render the frame
-        drawnow;
-        pause(0.05) ;
-    end
-end
-
-
-% 
 % % ---------------------------- During Impact ------------------------------
 % function [dq_plus, Lambda] = impact_dynamics(q, dq_minus, D, Jst)
 %     % Inputs:

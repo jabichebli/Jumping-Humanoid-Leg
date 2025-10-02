@@ -4,9 +4,9 @@
 % Course: ME239: Robotic Locomotion
 % Semester: Fall 2025
 %------------------------------------------------------------------------
-% By: Jason Abi Chebli
-% Student ID: 3042017306
-% Last Modified: 2025-09-17
+% By: Jason Abi Chebli and Andrew Tai
+% Student ID: 3042017306 and ___________
+% Last Modified: 2025-10-01
 % The following is the MATLAB code used to determine the dynamics of a
 % robotic leg jumping up and down. 
 %------------------------------------------------------------------------
@@ -19,13 +19,12 @@ clear all; close all; clc;
 % -------------------------------------------------------------------------
 
 % ---------------------------- Symbolic Setup -----------------------------
-% Define Symbolic Variables for 2-link leg system
+% Define Symbolic Variables for 3-link leg system
 syms x y q1 q2 q3 real
 syms xdot ydot q1dot q2dot q3dot real
 syms xddot yddot q1ddot q2ddot q3ddot real
 syms m1 I1 l1 d1 m2 I2 l2 d2 m3 I3 l3 d3 g real
 syms x_hip y_hip real
-
 Pi = sym(pi);
 
 % Generalized coords and rates
@@ -35,33 +34,29 @@ ddq = [xddot; yddot; q1ddot; q2ddot; q3ddot];
 
 % -------------------------- Forward kinematics ---------------------------
 % COM of link1 (hip->knee)
-p1 = [ x + d1*(-sin(q1));
-       y + d1*(-cos(q1)) ];
+p1 = [ x - d1*sin(q1);
+       y - d1*cos(q1)];
 
 % Knee position
-pknee = [ x + l1*(-sin(q1));
-          y + l1*(-cos(q1)) ];
+pknee = [ x - l1*sin(q1);
+          y - l1*cos(q1)];
 
 % COM of link2 (knee->foot)
-% p2 = [ x + l1*sin(q1) + d2*sin(q1 + q2);
-%        y + l1*cos(q1) + d2*cos(q1 + q2) ];
 p2 = [ x + l1*(-sin(q1)) + d2*sin(q2 - q1);
-          y + l1*(-sin(q1)) + d2*(-cos(q2 - q1)) ] ;
+          y - l1*cos(q1) - d2*cos(q2 - q1)] ;
 
-% Foot (stance) position
-pfoot = [ x + l1*(-sin(q1)) + l2*sin(q2 - q1);
-          y + l1*(-cos(q1)) + l2*(-cos(q2 - q1)) ] ;
+% Foot position
+pfoot = [ x - l1* sin(q1) + l2*sin(q2 - q1);
+          y - l1* cos(q1) - l2*cos(q2 - q1)] ;
+matlabFunction(pfoot, 'File', 'auto_pfoot');
 
-pfoot_y = pfoot(2) ;
-
-matlabFunction(pfoot_y, 'File', 'auto_pfoot_y');
-
-p3 = [x + d3 * (-sin(q3));
+% COM of link3 (hip->torso)
+p3 = [x - d3 * sin(q3);
       y + d3 * cos(q3)] ;
 
-phip = [x + l3 * (-sin(q3));
+% Torso position
+ptorso = [x - l3 * sin(q3);
         y + l3 * cos(q3)] ;
-
 
 % Total System COM
 pCOM = [ (m1 * p1(1) + m2 * p2(1) + m3 * p3(1))/(m1 + m2 + m3);
@@ -71,7 +66,7 @@ matlabFunction(pCOM, 'File', 'auto_pCOM');
 
 % ----------------------------- Velocities --------------------------------
 % linear velocities of COMs calcualted using Jacobian: v = J_q(p) * dq
-Jp1 = jacobian(p1, q);    % 2x4
+Jp1 = jacobian(p1, q);    % 2x5
 Jp2 = jacobian(p2, q);
 Jp3 = jacobian(p3, q);
 
@@ -80,12 +75,11 @@ v2  = simplify(Jp2 * dq);
 v3  = simplify(Jp3 * dq);
 
 % angular velocities definition
-omega3 = q3dot;
 omega1 = -q1dot;
 omega2 = -(q2dot - q1dot);
+omega3 = q3dot;
 
-
-% --------------------- Kinetic and potential energy ----------------------
+% --------------------- Kinetic and Potential Energy ----------------------
 % Note for potential and kinetic energy we need to use position and
 % velocity of COM of each link.
 
@@ -105,12 +99,24 @@ U  = simplify( U1 + U2 + U3 );
 % This is needed for dynamic equation with constraints 
 
 % Stance Jacobian
-Jst = jacobian(pfoot, q);
-Jstdot = jacobian(jacobian(pfoot, q) * dq, q) * dq ;
+Jst = jacobian(pfoot, q);   
 
+Jstdot = sym('Jdot', size(Jst));   
 
+for i = 1:size(Jst,1)
+    for j = 1:size(Jst,2)
+        temp = 0;
+        for k = 1:length(q)
+            temp = temp + diff(Jst(i,j), q(k)) * dq(k);
+        end
+        Jstdot(i,j) = temp;
+    end
+end
+
+Jstdot = simplify(Jstdot);
 % ------------------------- Dynamics Equations ----------------------------
-q_act = [q1; q2]; % The hip angle and knee angle are being actuated
+% q_act = [q1; q2]; % The hip angle and knee angle are being actuated
+q_act = q1; % single actuation 
 
 % Flight dynamics (no contact)
 [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act);   
@@ -122,25 +128,89 @@ matlabFunction(B, 'File', 'auto_B');
 matlabFunction(Jst, 'File', 'auto_Jst');
 matlabFunction(Jstdot, 'File', 'auto_Jstdot');
 
+% ------------------------ Virtual Constraints ----------------------------
+% Define Symbolic Variables for virual constraint
+syms Kp Kd real
+% syms u1 u2 real % for two holonomic constraints
+syms u1 real % for single holonomic constraint
+syms lambda1 lambda2 real
 
-% Define Virtual Constraints
-% 2) Virtual constraint: CoM above foot (horizontal alignment)
+% Generalized input and contact force
+% u_sym = [u1; u2]; % for two holonomic constraints
+u_sym = u1; % for single holonomic constraint
+lambda_sym = [lambda1; lambda2];
 
-COM_y_desired = 0.9;
+% Holonomic Virtual Constraint
+h = pCOM(1) - pfoot(1); % only x-constraint, CoM above foot (horizontal alignment)
 
-h = [pCOM(1) - pfoot(1);
-    pCOM(2) - COM_y_desired] ;% output to regulate
-dh_dq = jacobian(h, q);
-d2h__ = [jacobian(dh_dq*dq, q),   dh_dq] ;
+% Holonomic Jacobian
+Jh = jacobian(h, q); %  Jh = dh/dq 1 x 5
+Jh = simplify(Jh);
 
-% First derivative
-Lfh = simplify(dh_dq * dq);
+Jhdotdq = jacobian(Jh * dq, q) * dq; % Jhdot * dq
+Jhdotdq = simplify(Jhdotdq);
 
-% Store symbolic forms
+Jhdot = sym(zeros(size(Jh)));  % initialize  (2×5 if Jh is 2×5)
+for i = 1:size(Jh,1)
+    for j = 1:length(q)
+        Jhdot(i,:) = Jhdot(i,:) + diff(Jh(i,:), q(j)) * dq(j);
+    end
+end
+
+% First Derivative
+Lfh = Jh * dq; % dh/dt
+Lfh = simplify(Lfh);
+
+% Useful for Second Derivative (not computed symbolically as its too
+% intense) 
+d2h__ = [jacobian(Jh*dq, q), Jh]; % later d2h__ * {f(x) + g1(x)u + g2(x)lambda}
+
+% Export symbolic functions for numeric use
 matlabFunction(h, 'File', 'auto_h');
-matlabFunction(dh_dq, 'File', 'auto_dh_dq');
-matlabFunction(d2h__, 'File', 'auto_d2h__');
+matlabFunction(Jh, 'File', 'auto_Jh');
+matlabFunction(Jhdot, 'File', 'auto_Jhdot');
+matlabFunction(Jhdotdq, 'File', 'auto_Jhdotdq');
 matlabFunction(Lfh, 'File', 'auto_Lfh');
+matlabFunction(d2h__, 'File', 'auto_d2h__');
+
+
+
+% % Second Derivative
+% Lf2h_ddq = jacobian(Lfh, q)*dq + Jh*ddq; % = Jhdot*dq + Jh*ddq
+% Lf2h_ddq = simplify(Lf2h_ddq);
+% 
+% % Make Lf2h a function of u and lambda instead 
+% ddq_sub = D \ (-C*dq - G + B*u_sym + Jst.'*lambda_sym); % Dynamics equation arranged for ddq
+% ddq_sub = simplify(ddq_sub);
+% Lf2h_explicit = subs(Lf2h_ddq, ddq, ddq_sub); % Substitute the dynamics equation
+% Lf2h_explicit = simplify(Lf2h_explicit);
+% 
+% 
+% Lg_1Lfh = Jh * (D \ B); % (J_h D^{-1} B)
+% Lg_1Lfh = simplify(Lg_1Lfh);
+% 
+% Lg_2Lfh = Jh * (D \ Jst.'); % (J_h D^{-1} Jst^T)
+% Lg_2Lfh = simplify(Lg_2Lfh);
+% 
+% % PD controller
+% nu = -Kp*h - Kd*Lfh; %  hddot = nu = -Kp*h - Kd*hdot
+
+
+
+
+
+
+
+% dh_dq = simplify(jacobian(h, q)); 
+% d2h__ = [jacobian(dh_dq*dq, q),   dh_dq] ;
+% 
+% Lfh = simplify(Jh * dq); % First derivative
+% 
+% Store symbolic forms
+% matlabFunction(h, 'File', 'auto_h');
+% matlabFunction(dh_dq, 'File', 'auto_dh_dq');
+% matlabFunction(d2h__, 'File', 'auto_d2h__');
+% matlabFunction(Lfh, 'File', 'auto_Lfh');
 
 
 % % y = h(q) = h_0(q) - h_d(theta(q))
