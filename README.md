@@ -3,7 +3,7 @@
 Kinematic modelling, dynamics, and simulation of of a two link leg.
 
 ## Kinematics:
-<img src=https://github.com/user-attachments/assets/6cbc6997-366a-475b-a0c5-b1243e4a3d14  width="500px">
+<img width="1603" height="1024" alt="Free_Body_Diagram" src="https://github.com/user-attachments/assets/37b2fd00-dd50-42ff-9bea-ba8405575192" />
 
 ## Todos:
 
