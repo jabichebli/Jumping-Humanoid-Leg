@@ -45,7 +45,7 @@ function dx = leg_ode(~, x, params)
     Kp=params.Kp; Kd=params.Kd;
 
     % ---------------- Dynamics Matrices ----------------
-    D = auto_D(I1,I2,I3,d1,d2,d3,l1,m1,m2,m3,q1,q2,q3) ;
+    D = auto_D(I1,I2,I3,d1,d2,d3,l1,m1,m2,m3,q1,q2,q3);
     C = auto_C(d1,d2,d3,l1,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot);
     G = auto_G(d1,d2,d3,g,l1,m1,m2,m3,q1,q2,q3);
     B = auto_B();
@@ -53,49 +53,30 @@ function dx = leg_ode(~, x, params)
     Jstdot = auto_Jstdot(l1,l2,q1,q2,q1dot,q2dot);
 
     % ---------------- Virtual Constraint ----------------
-    h   = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,x,y) ;
-    Jh  = auto_Jh(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3) ;
+    h   = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,x,y); 
+    Jh  = auto_Jh(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3);
     d2h = auto_d2h__(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot);
 
     % Drift and input vector fields
     f = [dq;
          D \ (-C*dq - G)];
-    g1 = [zeros(5,2); % for two holonomic virtual constraints it should be 5 x 2
+    g1 = [zeros(5,2); 
             D \ B];
-    g2 = [zeros(5,2); % for two holonomic virtual constraints it should be 5 x 2
+    g2 = [zeros(5,2);
             D \ Jst.'];
+
 
     % Lie derivatives
     Lfh  = Jh * dq;
     Lf2h = d2h * f;
-    % LgLfh = d2h * gmat;
-
-
-    Lg_1Lfh = d2h*g1 ;
-    Lg_2Lfh = d2h*g2 ;
-    % 
-    % Lg_1h = J_h * [0 ; D \ B] ;
-    % Lg_2h = J_h * [0 ; D \ Jst.' ] ;
-
-    u = (-Lf2h - Kp*h - Kd*Lfh); % for one holonomic virtual constraint
-
-
-    LHS = [D, Jst.', -B;
-           Jst, zeros(2), zeros(2);
-           zeros(2,5), Lg_2Lfh, Lg_1Lfh];
-
-    RHS = [-C*dq - G; -Jstdot*dq; u];
-    sol = LHS \ RHS;
-
-    % 
-    % 
-    % Lg_1Lfh = simplify(Lg_1Lfh);
-    % 
-    % Lg_2Lfh = Jh * (D \ Jst.'); % (J_h D^{-1} Jst^T)
-    % Lg_2Lfh = simplify(Lg_2Lfh);
+    Lg_1Lfh = d2h * g1 ;
+    Lg_2Lfh = d2h * g2 ;
 
     % Control input
     % u = LgLfh \ (-Lf2h - Kp*h - Kd*Lfh); % this is for two holonomic virtual constraints
+    % u = (-Lf2h - Kp*h - Kd*Lfh) / LgLfh; % for one holonomic virtual constraint
+    
+    v = - Kp*h - Kd*Lfh; % Controller
 
     % Debug statements
     % disp(size(B))
@@ -106,14 +87,23 @@ function dx = leg_ode(~, x, params)
     % disp(size(u))
     %disp(size(Jstdot))
     % disp(size(dq))
+    % disp(size(Lg_1Lfh))
+    % disp(size(zeros(2,5)))
+    % disp(size(Lg_2Lfh))
+    % disp(size(Jst))
 
     % ---------------- Constrained Dynamics ----------------
-    % Assemble KKT system [D, Jst'; Jst, 0] * [ddq; lambda] = RHS
-    % LHS = [D, Jst.'; Jst, zeros(2)];
-    % RHS = [-C*dq - G + B*u; -Jstdot*dq];
-    % sol = LHS \ RHS;
+    % Assemble system 
+    LHS = [D, -B, -Jst.';
+           zeros(2,5), Lg_1Lfh, Lg_2Lfh;
+           Jst, zeros(2,2), zeros(2,2)];
+    RHS = [-C*dq - G;
+            v - Lf2h;
+            - Jstdot*dq];
+    sol = LHS \ RHS;
 
     ddq = sol(1:5);   % accelerations
+    u = sol(6:7);
     % lambda = sol(6:7); % ground reaction (not used)
 
     % State derivative
