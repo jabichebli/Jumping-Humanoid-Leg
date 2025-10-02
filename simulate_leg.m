@@ -42,7 +42,7 @@ clear all; close all; clc;
 
     % ODE solve
 
-    opts = odeset('RelTol',1e-10,'AbsTol',1e-10);
+    opts = odeset('Events', @event_break,'RelTol',1e-10,'AbsTol',1e-10);
     [t, X] = ode45(@(t,x) leg_ode(t,x,params), tspan, x0, opts);
     disp(length(t))
 
@@ -72,6 +72,12 @@ clear all; close all; clc;
     % Animate result
     % animate_leg(t, X, params, 3);
 end
+
+function [value, isterminal, direction] = break_event(t, y)
+        value = length(t)-13920
+        isterminal = 1; 
+        direction = 0; 
+    end
 
 
 % % ---------------------------- During Impact ------------------------------

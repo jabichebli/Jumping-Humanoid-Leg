@@ -137,8 +137,8 @@ syms lambda1 lambda2 real
 
 % Generalized input and contact force
 % u_sym = [u1; u2]; % for two holonomic constraints
-u_sym = u1; % for single holonomic constraint
-lambda_sym = [lambda1; lambda2];
+% u_sym = u1; % for single holonomic constraint
+% lambda_sym = [lambda1; lambda2];
 
 % Holonomic Virtual Constraint
 h = [pCOM(1) - pfoot(1);
