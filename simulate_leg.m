@@ -1,4 +1,6 @@
 function simulate_leg()
+
+clear all; close all; clc;
 % -------------------------------------------------------------------------
 % simulate_leg.m
 % -------------------------------------------------------------------------
@@ -27,22 +29,48 @@ function simulate_leg()
     params.g  = 9.81;
 
     % Virtual constraint gains
-    params.Kp = 100; 
-    params.Kd = 20;
+    params.Kp = 0.5; 
+    params.Kd = 0.2;
 
     % Initial state: [x, y, q1, q2, q3, xdot, ydot, q1dot, q2dot, q3dot]
     x0 = [0; 1; 0.1; -0.2; 0.0;   % initial positions
-          0; 0; 0; 0; 0];         % initial velocities
+          0; 0; 0; 0; 0;
+          0 ; 0];         % initial velocities
 
     % Time span
-    tspan = [0 2];
+    tspan = [0 3];
 
     % ODE solve
-    opts = odeset('RelTol',1e-6,'AbsTol',1e-8);
+
+    opts = odeset('RelTol',1e-10,'AbsTol',1e-10);
     [t, X] = ode45(@(t,x) leg_ode(t,x,params), tspan, x0, opts);
+    disp(length(t))
+
+    X_sol = X(:, 1:10) ;
+    u_sol = X(:, 11:12) ;
+
+
+    figure(1); hold on;
+    subplot(1,3,1); hold on;
+    plot(t, X_sol(:,1),'LineWidth',2, "DisplayName", "q1")
+    plot(t, X_sol(:,2),'LineWidth',2, "DisplayName", "q2")
+    plot(t, X_sol(:,3),'LineWidth',2, "DisplayName", "q3")
+    legend;
+
+    subplot(1,3,2); hold on;
+    plot(t, X_sol(:,6),'LineWidth',2, "DisplayName", "dq1")
+    plot(t, X_sol(:,7),'LineWidth',2, "DisplayName", "dq2")
+    plot(t, X_sol(:,8),'LineWidth',2, "DisplayName", "dq3")
+
+    subplot(1,3,3); hold on;
+    plot(t, u_sol(:,1),'LineWidth',2, "DisplayName", "u(q1)")
+    plot(t, u_sol(:,2),'LineWidth',2, "DisplayName", "u(q2)")
+    legend;
+
+
 
     % Animate result
-    animate_leg(t, X, params);
+    % animate_leg(t, X, params, 3);
 end
 
 

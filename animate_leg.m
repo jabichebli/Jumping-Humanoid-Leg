@@ -1,4 +1,4 @@
-function animate_leg(t, X, params)
+function animate_leg(t, X, params, figure_no)
 % -------------------------------------------------------------------------
 % animate_leg.m
 % -------------------------------------------------------------------------
@@ -12,9 +12,11 @@ function animate_leg(t, X, params)
 % Visualizes hip, knee, foot, and torso in Cartesian coordinates.
 % -------------------------------------------------------------------------
 
+    
+
     l1 = params.l1; l2 = params.l2; l3 = params.l3;
 
-    figure; hold on;
+    figure(figure_no); hold on;
     axis equal;
     xlabel('X [m]'); ylabel('Y [m]');
     title('Hopping Leg Animation');
@@ -37,6 +39,9 @@ function animate_leg(t, X, params)
         plot([hip(1), knee(1), foot(1)], [hip(2), knee(2), foot(2)], 'b-o','LineWidth',2);
         plot([hip(1), torso(1)], [hip(2), torso(2)], 'r-o','LineWidth',2);
         plot(0,0,'kx','MarkerSize',10,'LineWidth',2); % ground ref
+        title(sprintf('Leg Animation | Time: %.2f s', t(k)));
+
+
         axis([-1 1 0 2]); % fixed axes
         drawnow;
     end

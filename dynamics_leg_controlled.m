@@ -116,7 +116,7 @@ end
 Jstdot = simplify(Jstdot);
 % ------------------------- Dynamics Equations ----------------------------
 % q_act = [q1; q2]; % The hip angle and knee angle are being actuated
-q_act = q1; % single actuation 
+q_act = [q1, q2]; % single actuation 
 
 % Flight dynamics (no contact)
 [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act);   
@@ -141,7 +141,8 @@ u_sym = u1; % for single holonomic constraint
 lambda_sym = [lambda1; lambda2];
 
 % Holonomic Virtual Constraint
-h = pCOM(1) - pfoot(1); % only x-constraint, CoM above foot (horizontal alignment)
+h = [pCOM(1) - pfoot(1);
+     pCOM(2) - 0.4] ;
 
 % Holonomic Jacobian
 Jh = jacobian(h, q); %  Jh = dh/dq 1 x 5
