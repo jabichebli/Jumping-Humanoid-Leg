@@ -49,7 +49,7 @@ clear all; close all; clc;
     % ODE solve
 
     opts = odeset('RelTol',1e-10,'AbsTol',1e-10);
-    [t, X] = ode45(@(t,x) leg_ode(t,x,params), tspan, x0, opts);
+    [t, X] = ode45(@(t,x) dynamics_stance(t,x,params), tspan, x0, opts);
     disp(length(t))
 
     X_sol = X(:, 1:10) ;
