@@ -26,16 +26,16 @@ clear all; close all; clc;
     params.I1 = 0.1; params.I2 = 0.05; params.I3 = 0.002;
     params.l1 = 0.5; params.l2 = 0.3; params.l3 = 0.1;
     params.d1 = 0.25; params.d2 = 0.25; params.d3 = 0.05;
-    params.g  = 9.81;
+    params.g  = 9.81; params.q3d = 0;
 
     % Virtual constraint gains
     params.Kp = 50; 
     params.Kd = 10;
 
     % Initial state: [x, y, q1, q2, q3, xdot, ydot, q1dot, q2dot, q3dot]
-    x0 = [0; 0.8; 0.1; 0.15; 0.0;   % initial positions
+    x0 = [0; 0.8; 0.3; 0.15; 0.0;   % initial positions
           0; 0; 0; 0; 0;
-          0 ; 0;];         % initial velocities
+          0 ; 0; 0];         % initial velocities
 
     % Time span
     tspan = [0 3];
@@ -47,7 +47,7 @@ clear all; close all; clc;
     disp(length(t))
 
     X_sol = X(:, 1:10) ;
-    u_sol = X(:, 11:12) ;
+    u_sol = X(:, 11:13) ;
 
 
     figure(1); hold on;
@@ -65,6 +65,7 @@ clear all; close all; clc;
     subplot(1,3,3); hold on;
     plot(t, u_sol(:,1),'LineWidth',2, "DisplayName", "u(q1)")
     plot(t, u_sol(:,2),'LineWidth',2, "DisplayName", "u(q2)")
+    plot(t, u_sol(:,3),'LineWidth',2, "DisplayName", "u(q2)")
     legend;
 
 

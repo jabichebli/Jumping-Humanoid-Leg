@@ -41,7 +41,7 @@ function dx = leg_ode(~, x, params)
     I1=params.I1; I2=params.I2; I3=params.I3;
     l1=params.l1; l2=params.l2; l3=params.l3;
     d1=params.d1; d2=params.d2; d3=params.d3;
-    g = params.g;
+    g = params.g; q3_d = params.q3d;
     Kp=params.Kp; Kd=params.Kd;
 
     % ---------------- Dynamics Matrices ----------------
@@ -53,14 +53,14 @@ function dx = leg_ode(~, x, params)
     Jstdot = auto_Jstdot(l1,l2,q1,q2,q1dot,q2dot);
 
     % ---------------- Virtual Constraint ----------------
-    h   = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,x,y); 
+    h   = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q3_d,x,y); 
     Jh  = auto_Jh(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3);
     d2h = auto_d2h__(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot);
 
     % Drift and input vector fields
     f = [dq;
          D \ (-C*dq - G)];
-    g1 = [zeros(5,2); 
+    g1 = [zeros(5,3); 
             D \ B];
     g2 = [zeros(5,2);
             D \ Jst.'];
@@ -95,16 +95,16 @@ function dx = leg_ode(~, x, params)
     % ---------------- Constrained Dynamics ----------------
     % Assemble system 
     LHS = [D, -B, -Jst.';
-           zeros(2,5), Lg_1Lfh, Lg_2Lfh;
-           Jst, zeros(2,2), zeros(2,2)];
+           zeros(3,5), Lg_1Lfh, Lg_2Lfh;
+           Jst, zeros(2,3), zeros(2,2)];
     RHS = [-C*dq - G;
             v - Lf2h;
             - Jstdot*dq];
     sol = LHS \ RHS;
 
     ddq = sol(1:5);   % accelerations
-    u = sol(6:7);
-    % lambda = sol(6:7); % ground reaction (not used)
+    u = sol(6:8);
+    % lambda = sol(6:8); % ground reaction (not used)
 
     % State derivative
     dx = [dq; ddq; u];

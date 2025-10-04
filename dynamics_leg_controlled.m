@@ -117,8 +117,7 @@ end
 
 Jstdot = simplify(Jstdot);
 % ------------------------- Dynamics Equations ----------------------------
-q_act = [q1; q2]; % The hip angle and knee angle are being actuated
-% q_act = q1; % single actuation 
+q_act = [q1; q2; q3]; % Hip, knee, torso angles actuated
 
 % Flight dynamics (no contact)
 [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act);   
@@ -133,25 +132,27 @@ matlabFunction(Jstdot, 'File', 'auto_Jstdot');
 % ------------------------ Virtual Constraints ----------------------------
 % Define Symbolic Variables for virual constraint
 syms Kp Kd real
-syms u1 u2 real % for two holonomic constraints
+syms u1 u2 u3 real % for three holonomic constraints
+syms q3_d real % to set torso angle
 syms lambda1 lambda2 real
 
 % Generalized input and contact force
-u_sym = [u1; u2]; % for two holonomic constraints
+u_sym = [u1; u2; u3]; % for two holonomic constraints
 lambda_sym = [lambda1; lambda2];
 
 % Holonomic Virtual Constraint
 h = [pCOM(1) - pfoot(1); % x-constraint, CoM above foot (horizontal alignment)
-    pCOM(2) - 0.32];      % y-constraint, 
+    pCOM(2) - 0.32;      % y-constraint
+         q3 - q3_d];     % torso angle regulation
 
 % Holonomic Jacobian
-Jh = jacobian(h, q); %  Jh = dh/dq 1 x 5
+Jh = jacobian(h, q); %  Jh = dh/dq 3 x 5
 Jh = simplify(Jh);
 
 Jhdotdq = jacobian(Jh * dq, q) * dq; % Jhdot * dq
 Jhdotdq = simplify(Jhdotdq);
 
-Jhdot = sym(zeros(size(Jh)));  % initialize  (2×5 if Jh is 2×5)
+Jhdot = sym(zeros(size(Jh)));  % initialize  (3×5 if Jh is 3×5)
 for i = 1:size(Jh,1)
     for j = 1:length(q)
         Jhdot(i,:) = Jhdot(i,:) + diff(Jh(i,:), q(j)) * dq(j);
