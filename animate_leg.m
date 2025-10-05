@@ -46,7 +46,7 @@ function animate_leg(t, X, params)
         plot([hip(1), torso(1)], [hip(2), torso(2)], 'r-o','LineWidth',2);
         plot(pCOM(1), pCOM(2), 'o')
         plot(0,0,'kx','MarkerSize',10,'LineWidth',2); % ground ref
-        axis([-1 1 0 2]); % fixed axes
+        axis([-1 1 0 1.2]); % fixed axes
         drawnow;
     end
 end
