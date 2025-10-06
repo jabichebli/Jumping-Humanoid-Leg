@@ -135,7 +135,6 @@ syms Kp Kd real
 syms u1 u2 real % for three holonomic constraints
 syms pCOMy_d real % to set COM position and torso angle
 syms lambda1 lambda2 real
-syms p_COMy_d real % to set the COM y height to a desired value
 
 % Generalized input and contact force
 u_sym = [u1; u2]; % for two holonomic constraints

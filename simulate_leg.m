@@ -32,16 +32,14 @@ clear all; close all; clc;
     params.I2 = (1/12) * params.m2 * params.l2^2; % thin rod approximation about center
     params.I3 = (1/12) * params.m3 * (params.w3^2 + params.l3^2); % rectangular approximation about center
 
-    params.pCOMy_d = 0.22; % standing: 0.22 --> squatting: 0.08
+    params.pCOMy_d = 0.2; % standing: 0.20 --> squatting: 0.08  --> takeoff: 0.258
 
     % Virtual constraint gains
     params.Kp = 50; 
     params.Kd = 10;
 
     % Initial state: [x, y, q1, q2, q3, xdot, ydot, q1dot, q2dot, q3dot]
-    x0 = [0; 0.3; 0.3; 0.15; 0.0;   % initial positions
-          0; 0; 0; 0; 0;
-          0 ; 0];         % initial velocities
+    x0 = [0; 0.204353663171501; 1.2; 1.2; 0.0; 0; 0; 0; 0; 0; 0 ; 0;];
 
     % Time span
     tspan = [0 3];
@@ -49,7 +47,7 @@ clear all; close all; clc;
     % ODE solve
 
     opts = odeset('RelTol',1e-10,'AbsTol',1e-10);
-    [t, X] = ode45(@(t,x) dynamics_stance(t,x,params), tspan, x0, opts);
+    [t, X] = ode45(@(t,x) leg_ode(t,x,params), tspan, x0, opts);
     disp(length(t))
 
     X_sol = X(:, 1:10) ;
