@@ -5,32 +5,31 @@ function y_des = desired_COM_height(t, params)
 
     % --- Parameters ---
     y_stand   = params.y_stand;   % 0.22
-    y_squat   = params.y_squat;   % 0.08
-    y_takeoff = params.y_takeoff; % 0.267
+    y_squat   = params.y_squat;   % 0.10   % slightly higher squat (less range)
+    y_takeoff = params.y_takeoff; % 0.25   % lower target height
     T_hold    = params.T_hold;    % 2.0
-    T_squat   = params.T_squat;   % 0.5
-    T_push    = params.T_push;    % 0.3
+    T_squat   = params.T_squat;   % 0.6    % slightly slower descent
+    T_push    = params.T_push;    % 0.5    % slower push for gentler acceleration
 
     if t < T_hold
         % --- Phase 1: hold upright ---
         y_des = y_stand;
 
     elseif t < T_hold + T_squat
-        % --- Phase 2: squat down (smooth cubic) ---
+        % --- Phase 2: squat down (cosine for smoothness) ---
         tau = (t - T_hold) / T_squat;
-        %y_des = y_stand + (y_squat - y_stand)*(3*tau^2 - 2*tau^3);  % cubic
-         y_des = (1 - tau)*y_stand + tau*y_squat;
+        y_des = y_stand - 0.5*(y_stand - y_squat)*(1 - cos(pi*tau));
 
     elseif t < T_hold + T_squat + T_push
-        % --- Phase 3: push up (smooth cubic) ---
+        % --- Phase 3: push up (cosine for smooth acceleration) ---
         tau = (t - T_hold - T_squat) / T_push;
-        y_des = (1 - tau)*y_squat + tau*y_takeoff;
-        % tau = (t - T_hold - T_squat) / T_push;
-        % y_des = y_squat + (y_takeoff - y_squat)*(3*tau^2 - 2*tau^3);
+        y_des = y_squat + 0.5*(y_takeoff - y_squat)*(1 - cos(pi*tau));
 
     else
-        % --- Phase 4: hold extended (ready for takeoff) ---
-        y_des = y_takeoff;
+        % --- Phase 4: Gradual extension to maintain velocity ---
+        % Continue extending but more gradually to avoid excessive acceleration
+        tau = (t - T_hold - T_squat - T_push) / T_push;
+        y_des = y_takeoff + 0.05 * tau;  % Much more gradual extension
     end
 end
 
