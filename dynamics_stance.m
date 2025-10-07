@@ -1,4 +1,4 @@
-function [dx, lambda, u_out] = dynamics_stance(t, x, u_prev, params)
+function [dx, u, lambda, pCOMy_d] = dynamics_stance(t, x, params)
 % dynamics_stance.m
 % t: current time
 % x: state [q; dq]
@@ -25,7 +25,6 @@ function [dx, lambda, u_out] = dynamics_stance(t, x, u_prev, params)
     d1 = params.d1; d2 = params.d2; d3 = params.d3;
     g  = params.g;
     Kp = params.Kp; Kd = params.Kd;
-    alpha = params.alpha; % smoothing factor for u
 
     % ---------------- Dynamics Matrices ----------------
     D      = auto_D(I1,I2,I3,d1,d2,d3,l1,m1,m2,m3,q1,q2,q3);
@@ -40,6 +39,7 @@ function [dx, lambda, u_out] = dynamics_stance(t, x, u_prev, params)
     h       = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,pCOMy_d,q1,q2,q3,x_pos,y_pos); 
     Jh      = auto_Jh(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3);
     d2h     = auto_d2h__(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot);
+
 
     % Drift and input vector fields
     f  = [dq; D \ (-C*dq - G)];
@@ -64,11 +64,11 @@ function [dx, lambda, u_out] = dynamics_stance(t, x, u_prev, params)
     sol = LHS \ RHS;
 
     ddq     = sol(1:5);
-    u_computed = sol(6:7);       % raw control input
+    u = sol(6:7);       % raw control input
     lambda     = sol(8:9);       % constraint forces
 
     % ---------------- Smooth control update ----------------
-    u_out = u_prev + alpha*(u_computed - u_prev);
+    % u_out = u_prev + alpha*(u_computed - u_prev);
 
     % ---------------- Output ----------------
     dx = [dq; ddq];  % state derivative

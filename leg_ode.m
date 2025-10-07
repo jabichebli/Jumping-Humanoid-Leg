@@ -1,4 +1,4 @@
-function dx = leg_ode(~, x, params)
+function [dx, u] = leg_ode(~, x, params)
 % -------------------------------------------------------------------------
 % leg_ode.m
 % -------------------------------------------------------------------------
@@ -104,8 +104,11 @@ function dx = leg_ode(~, x, params)
 
     ddq = sol(1:5);   % accelerations
     u = sol(6:7);
+
+    % disp(sol(6:7))
+    % disp(u)
     % lambda = sol(6:8); % ground reaction (not used)
 
     % State derivative
-    dx = [dq; ddq; u];
+    dx = [dq; ddq];
 end

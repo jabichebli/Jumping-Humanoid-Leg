@@ -1,4 +1,4 @@
-function simulate_leg()
+function simulate_leg_balance_stance()
 
 clear all; close all; clc;
 % -------------------------------------------------------------------------
@@ -32,50 +32,92 @@ clear all; close all; clc;
     params.I2 = (1/12) * params.m2 * params.l2^2; % thin rod approximation about center
     params.I3 = (1/12) * params.m3 * (params.w3^2 + params.l3^2); % rectangular approximation about center
 
-    params.pCOMy_d = 0.2; % standing: 0.20 --> squatting: 0.08  --> takeoff: 0.258
+    % params.pCOMy_d = 0.2; % standing: 0.20 --> squatting: 0.08  --> takeoff: 0.258
+
+    params.m_t = params.m1 + params.m2 + params.m3 ;
+    v_takeoff = sqrt(2*params.g*0.03) ;
+
+
+    % Trajectory Parameters
+    params.y_stand   = 0.2;
+    params.y_squat   = 0.06;
+    params.y_takeoff = 0.258;
+    params.T_hold    = 2.0;
+    params.T_squat   = 0.6;
+    params.T_push    = 0.3;
 
     % Virtual constraint gains
     params.Kp = 50; 
     params.Kd = 10;
 
     % Initial state: [x, y, q1, q2, q3, xdot, ydot, q1dot, q2dot, q3dot]
-    x0 = [0; 0.204353663171501; 1.2; 1.2; 0.0; 0; 0; 0; 0; 0; 0 ; 0;];
+    x0 = [0; 0.2970; 0.2; 0.2; 0.0;   % initial positions
+          0; 0; 0; 0; 0;];         % initial velocities 
+
 
     % Time span
-    tspan = [0 3];
+    tspan = [0 10];
 
     % ODE solve
 
     opts = odeset('RelTol',1e-10,'AbsTol',1e-10);
-    [t, X] = ode45(@(t,x) leg_ode(t,x,params), tspan, x0, opts);
+    [t, X] = ode45(@(t,x) dynamics_stance(t,x,params), tspan, x0, opts);
     disp(length(t))
 
-    X_sol = X(:, 1:10) ;
-    u_sol = X(:, 11:12) ;
+    u_sol = zeros(length(t), 2);
+    lambda_sol = zeros(length(t), 2);
+    yCOM_sol = zeros(length(t), 1);
 
+
+
+    for i = 1:length(t)
+        [~, u, lambda, yCOM] = dynamics_stance(t(i), X(i,:).', params);
+        u_sol(i,:) = u.';
+        lambda_sol(i,:) = lambda.';
+        yCOM_sol(i,:) = yCOM.';
+    end
+
+    X_sol = X(:, 1:10) ;
+
+    dyCOM_sol = diff(yCOM_sol)./diff(t) ;
+    takeoff_idx = find(dyCOM_sol > v_takeoff) ;
+
+    figure(3); hold on;
+    % plot(t, lambda_sol(:,1),'LineWidth',2, "DisplayName", "lambda(x)")
+    plot(t(1:end-1), dyCOM_sol,'LineWidth',2, "DisplayName", "lambda(y)")
+    % plot(t, u_sol(:,3),'LineWidth',2, "DisplayName", "u(q2)")
+    legend;
+
+
+    t = t(1:takeoff_idx(1), :) ;
+    X_sol = X_sol(1:takeoff_idx(1), :) ;
+    u_sol = u_sol(1:takeoff_idx(1), :) ;
+    lambda_sol = lambda_sol(1:takeoff_idx(1), :) ;
 
     figure(1); hold on;
-    subplot(1,3,1); hold on;
+    subplot(3,2,1); hold on;
     plot(t, X_sol(:,1),'LineWidth',2, "DisplayName", "q1")
     plot(t, X_sol(:,2),'LineWidth',2, "DisplayName", "q2")
     plot(t, X_sol(:,3),'LineWidth',2, "DisplayName", "q3")
     legend;
 
-    subplot(1,3,2); hold on;
+    subplot(3,2,2); hold on;
     plot(t, X_sol(:,6),'LineWidth',2, "DisplayName", "dq1")
     plot(t, X_sol(:,7),'LineWidth',2, "DisplayName", "dq2")
     plot(t, X_sol(:,8),'LineWidth',2, "DisplayName", "dq3")
 
-    subplot(1,3,3); hold on;
+    subplot(3,2,3); hold on;
     plot(t, u_sol(:,1),'LineWidth',2, "DisplayName", "u(q1)")
     plot(t, u_sol(:,2),'LineWidth',2, "DisplayName", "u(q2)")
     % plot(t, u_sol(:,3),'LineWidth',2, "DisplayName", "u(q2)")
     legend;
 
+    subplot(3,2,4); hold on;
+    % plot(t, lambda_sol(:,1),'LineWidth',2, "DisplayName", "lambda(x)")
+    plot(t, lambda_sol(:,2),'LineWidth',2, "DisplayName", "lambda(y)")
+    % plot(t, u_sol(:,3),'LineWidth',2, "DisplayName", "u(q2)")
+    legend;
 
-
-    % Animate result
-    animate_leg(t, X, params);
 end
 
 
