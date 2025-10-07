@@ -18,15 +18,15 @@ function y_des = desired_COM_height(t, params)
     elseif t < T_hold + T_squat
         % --- Phase 2: squat down (smooth cubic) ---
         tau = (t - T_hold) / T_squat;
-        y_des = y_stand + (y_squat - y_stand)*(3*tau^2 - 2*tau^3);  % cubic
-        % y_des = (1 - tau)*y_stand + tau*y_squat;
+        %y_des = y_stand + (y_squat - y_stand)*(3*tau^2 - 2*tau^3);  % cubic
+         y_des = (1 - tau)*y_stand + tau*y_squat;
 
     elseif t < T_hold + T_squat + T_push
         % --- Phase 3: push up (smooth cubic) ---
         tau = (t - T_hold - T_squat) / T_push;
-        %y_des = (1 - tau)*y_squat + tau*y_takeoff;
-        tau = (t - T_hold - T_squat) / T_push;
-        y_des = y_squat + (y_takeoff - y_squat)*(3*tau^2 - 2*tau^3);
+        y_des = (1 - tau)*y_squat + tau*y_takeoff;
+        % tau = (t - T_hold - T_squat) / T_push;
+        % y_des = y_squat + (y_takeoff - y_squat)*(3*tau^2 - 2*tau^3);
 
     else
         % --- Phase 4: hold extended (ready for takeoff) ---
