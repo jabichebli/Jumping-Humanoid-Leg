@@ -1,4 +1,4 @@
-function simulate_leg_balance_stance()
+function simulate_leg_squating()
 
 clear all; close all; clc;
 % -------------------------------------------------------------------------
