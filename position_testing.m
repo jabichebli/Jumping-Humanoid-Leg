@@ -14,7 +14,7 @@ params.I2 = (1/12) * params.m2 * params.l2^2;
 params.I3 = (1/12) * params.m3 * (params.w3^2 + params.l3^2); % rectangular body
 
 % ---------------- Nominal joint angles ----------------
-q1_0 = 1.2;
+q1_0 = 0.8;
 q2_0 = 1.2;
 q3_0 = 0.0;
 x_0  = 0;           % hip horizontal position guess
