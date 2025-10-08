@@ -161,39 +161,6 @@ Lfh = simplify(Lfh);
 d2h__ = [jacobian(Jh*dq, q), Jh]; % later d2h__ * {f(x) + g1(x)u + g2(x)lambda}
 
 
-% ------------------------ Flight Constraints ----------------------------
-% Define Symbolic Variables for virual constraint
-syms Kp Kd real
-syms u1 u2 real % for three holonomic constraints
-syms pCOMy_d real % to set COM position and torso angle
-syms qd1 qd2 real
-syms lambda1 lambda2 real
-
-% Holonomic Virtual Constraint
-h_flight = [q1 - qd1; % x-constraint, CoM above foot (horizontal alignment)
-            q2 - qd2];      % y-constraint
-
-% Holonomic Jacobian
-Jh_flight = jacobian(h_flight, q); %  Jh = dh/dq 3 x 5
-Jh_flight = simplify(Jh_flight);
-
-Jhdotdq_flight = jacobian(Jh_flight * dq, q) * dq; % Jhdot * dq
-Jhdotdq_flight = simplify(Jhdotdq_flight);
-
-Jhdot_flight = sym(zeros(size(Jh_flight)));  % initialize  (3×5 if Jh is 3×5)
-for i = 1:size(Jh_flight,1)
-    for j = 1:length(q)
-        Jhdot_flight(i,:) = Jhdot_flight(i,:) + diff(Jh_flight(i,:), q(j)) * dq(j);
-    end
-end
-
-% First Derivative
-Lfh_flight = Jh_flight * dq; % dh/dt
-Lfh_flight = simplify(Lfh_flight);
-
-% Useful for Second Derivative (not computed symbolically as it's too intense)
-d2h__flight = [jacobian(Jh_flight*dq, q), Jh_flight]; % later d2h__ * {f(x) + g1(x)u + g2(x)lambda}
-
 % ------------------------ Export Functions ----------------------------
 
 if ~exist('./auto')
@@ -223,10 +190,3 @@ matlabFunction(Jhdotdq, 'File', 'auto/auto_Jhdotdq');
 matlabFunction(Lfh, 'File', 'auto/auto_Lfh');
 matlabFunction(d2h__, 'File', 'auto/auto_d2h__');
 
-% Generate corresponding virtual constraints for flight
-matlabFunction(h_flight, 'File', 'auto/auto_h_flight');
-matlabFunction(Jh_flight, 'File', 'auto/auto_Jh_flight');
-matlabFunction(Jhdot_flight, 'File', 'auto/auto_Jhdot_flight');
-matlabFunction(Jhdotdq_flight, 'File', 'auto/auto_Jhdotdq_flight');
-matlabFunction(Lfh_flight, 'File', 'auto/auto_Lfh_flight');
-matlabFunction(d2h__flight, 'File', 'auto/auto_d2h__flight');
