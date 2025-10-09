@@ -25,7 +25,7 @@ function animate_leg(t, X, params)
     title('Hopping Leg Animation');
     grid on;
 
-    for k = 1:length(t)
+    for k = 1:10:length(t)
         q = X(k,1:5).';
         x = q(1); y = q(2); q1=q(3); q2=q(4); q3=q(5);
 

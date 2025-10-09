@@ -25,7 +25,7 @@ function simulate_leg_flight()
     params.m_t = params.m1 + params.m2 + params.m3 ;
 
     % Initial state: [x, y, q1, q2, q3, xdot, ydot, q1dot, q2dot, q3dot]
-    x0 = [0; 0.26; 0.8; 1.2; 0; 0; 3; 0; 0; 0];
+    x0 = [0; 0.26; 0.8; 1.2; 0; 0; 0.954; 0; 0; 0];
 
     tspan = [0, (2*3/9.81) + 2.5] ;
     opts = odeset('Events', @(t,x) event_touchdown(t,x,params));

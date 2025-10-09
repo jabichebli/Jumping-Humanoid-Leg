@@ -35,12 +35,12 @@ function [dx, u, lambda, pCOMy_d] = dynamics_stance(t, x, params)
     Jstdot = auto_Jstdot(l1,l2,q1,q2,q1dot,q2dot);
 
     % Debug
-    fprintf('size D = %dx%d, cond(D) = %.3e\n', size(D,1), size(D,2), cond(D));
-    fprintf('size B = %dx%d, size Jst = %dx%d, size Jstdot = %dx%d\n', size(B,1), size(B,2), size(Jst,1), size(Jst,2), size(Jstdot,1), size(Jstdot,2));
+    % fprintf('size D = %dx%d, cond(D) = %.3e\n', size(D,1), size(D,2), cond(D));
+    % fprintf('size B = %dx%d, size Jst = %dx%d, size Jstdot = %dx%d\n', size(B,1), size(B,2), size(Jst,1), size(Jst,2), size(Jstdot,1), size(Jstdot,2));
 
     % ---------------- Virtual Constraint ----------------
-    % pCOMy_d = desired_COM_height(t, params);
-    pCOMy_d = params.pCOMy_d;
+    pCOMy_d = desired_COM_height(t, params);
+    %pCOMy_d = params.pCOMy_d;
     h       = auto_h(d1,d2,d3,l1,l2,m1,m2,m3,pCOMy_d,q1,q2,q3,x_pos,y_pos); 
     Jh      = auto_Jh(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3);
     d2h     = auto_d2h__(d1,d2,d3,l1,l2,m1,m2,m3,q1,q2,q3,q1dot,q2dot,q3dot);
@@ -92,8 +92,8 @@ function [dx, u, lambda, pCOMy_d] = dynamics_stance(t, x, params)
     constraint_residual = Jst * ddq + Jstdot * dq;  % should be (near) zero
     
     % prints (use fprintf to avoid slowing too much)
-    fprintf('t=%.4f  pfoot_y=%.6f  vfoot_y=%.6f  |res|=%.3e  lambda=[%.3e, %.3e]\n', ...
-             t, pfoot(2), vfoot(2), norm(constraint_residual), lambda(1), lambda(2));
+    % fprintf('t=%.4f  pfoot_y=%.6f  vfoot_y=%.6f  |res|=%.3e  lambda=[%.3e, %.3e]\n', ...
+    %          t, pfoot(2), vfoot(2), norm(constraint_residual), lambda(1), lambda(2));
 
     dx = [dq; ddq];  % state derivative
 
