@@ -1,4 +1,4 @@
-function [dx] = dynamics_flight(~, x, params)
+function [dx, u] = dynamics_flight(~, x, params)
 % -------------------------------------------------------------------------
 % dynamics_flight.m
 % -------------------------------------------------------------------------
@@ -38,7 +38,30 @@ function [dx] = dynamics_flight(~, x, params)
 
     % -------------------- Control Torques --------------------
     % For now, no control torques (pure ballistic motion)
-    u = [0; 0];
+    %u = [0; 0];
+
+    % --- flight PD controller on q1 and q2 ---
+    % desired angles
+    if isfield(params,'q_des_flight')
+        qd = params.q_des_flight(:);   % [q1_des; q2_des]
+    elseif isfield(params,'q_takeoff')
+        qd = params.q_takeoff(:);
+    else
+        qd = [q1; q2]; % fallback: hold current
+    end
+
+    Kp = params.flight_Kp;
+    Kd = params.flight_Kd;
+    umax = params.flight_u_max;
+
+    % PD (on q1,q2 only)
+    err = qd - [q1; q2];
+    derr = - [q1dot; q2dot];   % desire zero rate relative to target
+    u_raw = Kp .* err + Kd .* derr;   % 2x1
+
+    % saturate torques elementwise
+    u = max(min(u_raw, umax(:)), -umax(:));
+    
 
     % -------------------- Equations of Motion --------------------
     % D(q)*ddq + C(q,dq)*dq + G(q) = B*u

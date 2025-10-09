@@ -1,4 +1,5 @@
-function x_plus = impact_map(x_minus, params)
+function x_plus = dynamics_impact(x_minus, params)
+% x_minus needs to be a colum vector
 
     % Extract states
     q  = x_minus(1:5);
