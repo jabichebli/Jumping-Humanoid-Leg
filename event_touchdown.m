@@ -16,5 +16,5 @@ function [value, isterminal, direction] = event_touchdown(t, x, params)
     value = yFoot;        % When foot touches the ground (yFoot = 0)
     isterminal = 1;       % Stop integration when event happens
     direction = -1;       % Only detect downward crossings (from + to -)
-    fprintf('Touchdown at t=%.3f, yFoot=%.4f\n', t, yFoot);
+    % fprintf('Touchdown at t=%.3f, yFoot=%.4f\n', t, yFoot);
 end

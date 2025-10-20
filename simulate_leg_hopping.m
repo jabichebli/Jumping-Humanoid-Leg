@@ -6,30 +6,7 @@ function simulate_leg_hopping()
     clear; close all; clc;
 
     % ---------------- Simulation Parameters ----------------
-    params.m1 = 0.15;   params.m2 = 0.15;   params.m3 = 0.8;
-    params.l1 = 0.15;   params.l2 = 0.15;   params.l3 = 0.1; params.w3 = 0.15;
-    params.d1 = 0.075;  params.d2 = 0.075;  params.d3 = 0.0; 
-    params.g  = 9.81; 
-    params.q1d = 0; params.q2d = 0;
-
-    % Moments of inertia
-    params.I1 = (1/12) * params.m1 * params.l1^2;
-    params.I2 = (1/12) * params.m2 * params.l2^2;
-    params.I3 = (1/12) * params.m3 * (params.w3^2 + params.l3^2);
-
-    params.m_t = params.m1 + params.m2 + params.m3;
-
-    % Trajectory Parameters
-    params.y_stand   = 0.2;
-    params.y_squat   = 0.08;
-    params.y_takeoff = 0.65;
-    params.T_hold    = 2.0;
-    params.T_squat   = 0.6;
-    params.T_push    = 0.3;
-
-    % Virtual constraint gains
-    params.Kp = 30;
-    params.Kd = 8;
+    params = getParams();
 
     % Flight PD and torque limits
     params.flight_Kp = [10; 10]; 
