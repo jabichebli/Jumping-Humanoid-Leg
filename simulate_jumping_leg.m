@@ -26,11 +26,11 @@ function simulate_jumping_leg()
     % (unless you change folders). Uncomment the code first time you run.
     % =====================================================================
     
-    % addpath('./auto/');
-    % addpath('./trajectory/');
-    % addpath('./events/'); 
-    % addpath('./dynamics/');
-    % addpath('./animate/'); 
+    addpath('./auto/');
+    addpath('./trajectory/');
+    addpath('./events/'); 
+    addpath('./dynamics/');
+    addpath('./animate/'); 
 
     % =====================================================================
     % ------------- 1. Define the simulation parameters -------------------
@@ -97,7 +97,7 @@ function simulate_jumping_leg()
             case 1 % Stance Phase: Stablizing, Squating and Takeoff
                 fprintf('  State 1: Liftoff Stance from t=%.3f\n', t_start);
                 [t, X, ~, ~, ~] = ode45(@(t,x) dynamics_stance(t,x,params), [t_start t_end], x_current, opts_stance);
-                
+                Ok,
                 % Log liftoff data
                 u_temp = zeros(length(t), 2); lambda_temp = zeros(length(t), 2);
                 p_d_y_temp = zeros(length(t),1); p_d_x_temp = zeros(length(t),1);
