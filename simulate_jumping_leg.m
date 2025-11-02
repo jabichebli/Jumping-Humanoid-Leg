@@ -46,7 +46,7 @@ function simulate_jumping_leg()
     params.I1 = (1/12) * params.m1 * params.l1^2;
     params.I2 = (1/12) * params.m2 * params.l2^2;
     params.I3 = (1/12) * params.m3 * (params.w3^2 + params.l3^2);
-    params.mu = 0.8
+    params.mu = 0.8;
 
     % Trajectory parameters - main
     params.y_stand_target = 0.22;
