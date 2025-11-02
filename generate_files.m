@@ -1,22 +1,20 @@
-%------------------------------------------------------------------------
-%------------------------------------------------------------------------
-% MECENG239 Final Project - Hopping Leg  (+ Front Flip as extension)
-% Course: ME239: Robotic Locomotion
-% Semester: Fall 2025
-%------------------------------------------------------------------------
-% By: Jason Abi Chebli and Andrew Tai
-% Student ID: 3042017306 and ___________
-% Last Modified: 2025-10-01
-% The following is the MATLAB code used to determine the dynamics of a
-% robotic leg jumping up and down. 
-%------------------------------------------------------------------------
-%------------------------------------------------------------------------
+% -------------------------------------------------------------------------
+% generate_files.m
+% -------------------------------------------------------------------------
+% This is the code required to determine and setup the dynamics of a robot 
+% leg jumping up and down. It sets up the problem symbolically,
+% auto-generates necessary files and enforces the holonomic virtual
+% constraints. 
+% -------------------------------------------------------------------------
+% Created by: Jason Abi Chebli
+% Last Modified: 30-October-2025
+% -------------------------------------------------------------------------
 
 clear all; close all; clc;
 
-% -------------------------------------------------------------------------
+% =========================================================================
 % ----------------- Calculating Dynamics (Symbollically) ------------------
-% -------------------------------------------------------------------------
+% =========================================================================
 
 % ---------------------------- Symbolic Setup -----------------------------
 % Define Symbolic Variables for 3-link leg system
@@ -113,39 +111,57 @@ for i = 1:size(Jst,1)
 end
 
 Jstdot = simplify(Jstdot);
+
+% COM Jacobian (pCOM) and its derivative
+JpCOM = jacobian(pCOM, q);
+JpCOM = simplify(JpCOM);
+
+dJpCOM = sym('dJpCOM', size(JpCOM));
+for i = 1:size(JpCOM,1)
+    for j = 1:size(JpCOM,2)
+        temp = 0;
+        for k = 1:length(q)
+            temp = temp + diff(JpCOM(i,j), q(k)) * dq(k);
+        end
+        dJpCOM(i,j) = temp;
+    end
+end
+dJpCOM = simplify(dJpCOM);
+
+
 % ------------------------- Dynamics Equations ----------------------------
 q_act = [q1; q2]; % Hip, knee angles actuated
 
 % Flight dynamics (no contact)
 [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act);   
 
-% ------------------------ Virtual Constraints ----------------------------
+% =========================================================================
+% ------------------------- Virtual Constraints ---------------------------
+% =========================================================================
+
 % Define Symbolic Variables for virual constraint
 syms Kp Kd real
-syms u1 u2 real % for three holonomic constraints
-syms pCOMy_d real % to set COM position and torso angle
+syms u1 u2 real
+syms pCOMy_d real
 syms qd1 qd2 real
 syms lambda1 lambda2 real
 
 % Generalized input and contact force
-u_sym = [u1; u2]; % for two holonomic constraints
+u_sym = [u1; u2];
 lambda_sym = [lambda1; lambda2];
 
 % Holonomic Virtual Constraint
 h = [pCOM(1) - pfoot(1); % x-constraint, CoM above foot (horizontal alignment)
     pCOM(2) - pCOMy_d];      % y-constraint
 
-h_flight = [q1 - qd1; % x-constraint, CoM above foot (horizontal alignment)
-            q2 - qd2];      % y-constraint
-
 % Holonomic Jacobian
-Jh = jacobian(h, q); %  Jh = dh/dq 3 x 5
+Jh = jacobian(h, q); %  Jh = dh/dq 
 Jh = simplify(Jh);
 
 Jhdotdq = jacobian(Jh * dq, q) * dq; % Jhdot * dq
 Jhdotdq = simplify(Jhdotdq);
 
-Jhdot = sym(zeros(size(Jh)));  % initialize  (3×5 if Jh is 3×5)
+Jhdot = sym(zeros(size(Jh))); 
 for i = 1:size(Jh,1)
     for j = 1:length(q)
         Jhdot(i,:) = Jhdot(i,:) + diff(Jh(i,:), q(j)) * dq(j);
@@ -156,12 +172,12 @@ end
 Lfh = Jh * dq; % dh/dt
 Lfh = simplify(Lfh);
 
-% Useful for Second Derivative (not computed symbolically as its too
-% intense) 
-d2h__ = [jacobian(Jh*dq, q), Jh]; % later d2h__ * {f(x) + g1(x)u + g2(x)lambda}
+% Useful for Second Derivative (not computed symbolically as its too intense) 
+d2h__ = [jacobian(Jh*dq, q), Jh];
 
-
-% ------------------------ Export Functions ----------------------------
+% =========================================================================
+% --------------------------- Export Functions ----------------------------
+% =========================================================================
 
 if ~exist('./auto')
     mkdir('./auto')
@@ -181,6 +197,10 @@ matlabFunction(B, 'File', 'auto/auto_B');
 % Generate stationary Jacobians
 matlabFunction(Jst, 'File', 'auto/auto_Jst');
 matlabFunction(Jstdot, 'File', 'auto/auto_Jstdot');
+
+% Generate COM Jacobian and its derivative
+matlabFunction(JpCOM, 'File', 'auto/auto_JpCOM');
+matlabFunction(dJpCOM, 'File', 'auto/auto_dJpCOM');
 
 % Generate corresponding virtual constraints for stance
 matlabFunction(h, 'File', 'auto/auto_h');

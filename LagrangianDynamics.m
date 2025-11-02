@@ -1,16 +1,25 @@
+% -------------------------------------------------------------------------
+% LagrangianDynamics.m
+% -------------------------------------------------------------------------
+
+function [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act)
+% -------------------------------------------------------------------------
 % Function to output the dynamics matrices. Uses the lagrangian method.
+% Created by Koushil Sreenath.
+%
 % Inputs:
 %   T: Kinetic Energy scalar
 %   U: Potential Energy scalar
 %   q: Generalized coordinates
 %   dq: Time-derivative of the generalized coordinates
 %   q_act: Actuated angles of the system
+%
 % Outputs:
 %   D: D(q) Inertia matrix
 %   C: C(q,dq) Coriollis matrix
 %   G: G(q) Gravity matrix
-%   B: B(q) Input Matrix?
-function [D, C, G, B] = LagrangianDynamics(T, U, q, dq, q_act)
+%   B: B(q) Input Matrix
+% -------------------------------------------------------------------------
 
 D = simplify( jacobian(jacobian(T,dq), dq) ) ;
 for k=1:length(q)
