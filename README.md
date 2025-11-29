@@ -143,13 +143,6 @@ Jumping-Humanoid-Leg/
   </tr>
 </table>
 
- ![animation_Vertical_Pushes](https://github.com/user-attachments/assets/6681fb43-3354-46d6-a241-8d7ace9f3639)
-<img width="602" height="767" alt="Vertical_Push" src="https://github.com/user-attachments/assets/4fcabac6-2c6c-459f-9846-2b9eea584a27" />
-![animation_Horizontal_Pushes](https://github.com/user-attachments/assets/f0784f60-9b97-4812-87c6-edcd4fc86057)
-<img width="602" height="767" alt="Horizontal_Push" src="https://github.com/user-attachments/assets/40e6628c-246a-4c1e-9f72-2490f43cc2a9" />
-![animation_Combination_Pushes](https://github.com/user-attachments/assets/78c10869-c005-46d5-a10f-c2a00fee0335)
-<img width="602" height="762" alt="Combo_Push" src="https://github.com/user-attachments/assets/86ae061f-75b0-4db5-99aa-f204c9985538" />
-
 ### Stance Phase and Jump Sequence
 
 A visualization of the full jump sequence, showing the compression in the stance phase, the push-off, and the resulting flight phase.
@@ -158,13 +151,40 @@ A visualization of the full jump sequence, showing the compression in the stance
 
 ### Balancing and Stability
 
-An image showing the leg maintaining a stable, balanced stance position using a feedback controller.
-![jumping_leg_1](https://github.com/user-attachments/assets/de2d2c77-0670-4aec-b44c-1f11c836d2ac)
-<img width="602" height="868" alt="Hip_States_Position_During_Jump" src="https://github.com/user-attachments/assets/3dcbd422-09e2-4f22-87dd-bf0192d7025e" />
-<img width="602" height="749" alt="COM_Trajectory" src="https://github.com/user-attachments/assets/91e87833-7968-45ae-ae1f-abe7e8b06099" />
+Controller perfromance can be seen below. 
 
-![leg_leaping_animation_backwards_leap](https://github.com/user-attachments/assets/bfcf4916-9e60-49e7-bfe3-aa7743c1879f)
-![leg_leaping_animation_forward_leap](https://github.com/user-attachments/assets/e35b305f-7c8e-40ea-869e-99f3509b4769)
+<table width="100%">
+  <tr>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/91e87833-7968-45ae-ae1f-abe7e8b06099" alt="Center of Mass Trajectory" width="100%">
+      <br>
+      <p>Center of Mass (CoM) Trajectory</p>
+    </td>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/3dcbd422-09e2-4f22-87dd-bf0192d7025e" alt="Hip States Position During Jump" width="100%">
+      <br>
+      <p>Hip State Variables During Jump</p>
+    </td>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/de2d2c77-0670-4aec-b44c-1f11c836d2ac" alt="Stable Balanced Stance" width="100%">
+      <br>
+      <p>Balanced Stance Demonstration</p>
+    </td>
+  </tr>
+  
+  <tr>
+    <td align="center" width="50%" colspan="2">
+      <img src="https://github.com/user-attachments/assets/e35b305f-7c8e-40ea-869e-99f3509b4769" alt="Forward Leap Animation" width="100%">
+      <br>
+      <p>Forward Leap Animation</p>
+    </td>
+    <td align="center" width="50%" colspan="1">
+      <img src="https://github.com/user-attachments/assets/bfcf4916-9e60-49e7-bfe3-aa7743c1879f" alt="Backward Leap Animation" width="100%">
+      <br>
+      <p>Backward Leap Animation</p>
+    </td>
+  </tr>
+</table>
 
 
 ---
@@ -173,13 +193,28 @@ An image showing the leg maintaining a stable, balanced stance position using a 
 
 A first-version physical prototype was developed. A jumping characteristic was achieved using a simplified joint angle controller that drives the leg to set values.
 
-![jumping_real_leg](https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690)
-
-If we had more time, and money, we would:
-- Redesign the test-rig and mounting apparatus
-- Implement an IMU and do IK and FK of the leg
-- Use Brushless motors (to get force feedback for when we touch the ground)
-- Transition the stabilizing controller and jumping controller implemented in MATLAB to C# (arduino) 
+<table width="100%">
+  <tr>
+    <td width="60%" valign="top">
+      <p>While this project successfully demonstrated the theoretical framework and simulation of a jumping humanoid leg, there are several key areas for future development to transition towards robust physical implementation and enhanced control:</p>
+      <ul>
+        <li><strong>Redesign Test-Rig and Mounting Apparatus:</strong> The current test-rig is functional but could be optimized for rigidity, sensor integration, and ease of modification to support more advanced experiments.</li>
+        <li><strong>Implement IMU for Kinematics:</strong> Integrating an Inertial Measurement Unit (IMU) would enable real-time Inverse Kinematics (IK) and Forward Kinematics (FK), crucial for accurate state estimation and feedback control without relying solely on joint encoders.</li>
+        <li><strong>Utilize Brushless Motors with Force Feedback:</strong> Transitioning to brushless DC motors with integrated force/torque sensors would allow for direct measurement of ground reaction forces, providing critical information for dynamic control during ground contact and push-off phases.</li>
+        <li><strong>Port Controllers to Embedded System (C++/Arduino):</strong> The existing stabilizing and jumping controllers, currently implemented in MATLAB, need to be re-engineered in C++ for real-time execution on an embedded platform like an Arduino or a more powerful microcontroller/SBC.</li>
+        <li><strong>Explore Advanced Control Strategies:</strong> Investigate more sophisticated control algorithms such as Model Predictive Control (MPC) or reinforcement learning to achieve more agile and adaptable jumping behaviors.</li>
+        <li><strong>Incorporate Multi-Contact Dynamics:</strong> Extend the model to handle more complex contact scenarios, including impacts and continuous rolling contact with the ground.</li>
+        <li><strong>Energy Efficiency Optimization:</strong> Analyze and optimize the leg's design and control strategies for improved energy efficiency, a critical factor for untethered robotic systems.</li>
+      </ul>
+    </td>
+    <td width="40%" align="center" valign="top">
+      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Future Work Diagram/Concept" width="100%">
+      <br>
+      <p>Concept for a more advanced physical prototype or test setup.
+         *(Placeholder for a GIF demonstrating an improved physical leg or simulation concept.)*</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
