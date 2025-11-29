@@ -1,6 +1,6 @@
 # 🦿 Jumping Humanoid Leg: Modeling, Dynamics, and Simulation
 
-A comprehensive project focused on the **kinematic modeling, Lagrangian dynamics, and simulation** of a **two-link jumping humanoid leg**. This repository provides the framework for analyzing and controlling a high-performance robotic leg, paving the way for eventual hardware implementation of dynamic maneuvers like jumping.
+A comprehensive project focused on the **kinematic modeling, Lagrangian dynamics, and simulation** of a **three-link jumping humanoid leg**. This repository provides the framework for developing the controller for a robotic leg, paving the way for eventual hardware implementation of dynamic maneuvers like jumping.
 
 ---
 
