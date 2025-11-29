@@ -1,39 +1,6 @@
-# 🤖 Jumping Humanoid Leg: Modeling, Dynamics, and Simulation
+# 🦿 Jumping Humanoid Leg: Modeling, Dynamics, and Simulation
 
 A comprehensive project focused on the **kinematic modeling, Lagrangian dynamics, and simulation** of a **two-link jumping humanoid leg**. This repository provides the framework for analyzing and controlling a high-performance robotic leg, paving the way for eventual hardware implementation of dynamic maneuvers like jumping.
-
----
-
-## ✨ Features
-
-* **Lagrangian Dynamics Derivation:** Automated symbolic calculation of the mass matrix ($\mathbf{D}$), Coriolis/Centrifugal terms ($\mathbf{C}$), and Gravity terms ($\mathbf{G}$) for the two-link system.
-* **Dynamic Simulation:** Utilizes an ODE solver (MATLAB's `ode45`) to simulate the leg's movement during both the stance (ground contact) and flight phases.
-* **Trajectory Planning:** Code for generating and testing desired joint angle trajectories.
-* **Animation:** Tools to visualize the simulated leg motion for clear analysis.
-* **Hardware Control Foundation:** Includes initial C/C++ code for potential real-world deployment using an Arduino or similar microcontroller.
-
----
-
-## 📐 Kinematics & Dynamics Model
-
-The project is built upon a standard two-link planar leg model, often simplified as an inverted pendulum during the stance phase.
-
-The system dynamics are derived using the **Lagrangian method**, resulting in the general form:
-$$
-\mathbf{D}(\mathbf{q})\ddot{\mathbf{q}} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{G}(\mathbf{q}) = \boldsymbol{\tau} + \mathbf{J}^T \mathbf{F}_{ext}
-$$
-Where:
-* $\mathbf{q}$ is the vector of generalized coordinates (joint angles).
-* $\mathbf{D}$ is the Mass Matrix.
-* $\mathbf{C}$ contains the Coriolis and Centrifugal terms.
-* $\mathbf{G}$ is the Gravity vector.
-* $\boldsymbol{\tau}$ is the vector of joint torques.
-* $\mathbf{J}$ is the Jacobian matrix of the stance foot.
-* $\mathbf{F}_{ext}$ are external forces (e.g., ground reaction force).
-
-The Free Body Diagram below illustrates the two-link model used for the derivation:
-
-
 
 ---
 
@@ -45,36 +12,31 @@ These instructions will get you a copy of the project up and running on your loc
 
 The main simulation code is written in **MATLAB**.
 
-* **MATLAB (2018b or newer recommended)**
+* **MATLAB (R2025a or newer recommended)**
 * **Symbolic Math Toolbox** (Required for running the dynamics derivation file)
-
-The hardware controller code requires:
-* **Arduino IDE** (or similar C/C++ environment)
 
 ### Installation and Execution
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/jabichebli/Jumping-Humanoid-Leg.git
-    cd Jumping-Humanoid-Leg
-    ```
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/jabichebli/Jumping-Humanoid-Leg.git](https://github.com/jabichebli/Jumping-Humanoid-Leg.git)
+    cd Jumping-Humanoid-Leg
+    ```
 
-2.  **Generate Dynamic Functions:**
-    The core dynamic equations are generated symbolically to optimize simulation speed. This step must be run first.
-    ```matlab
-    % In MATLAB command window or script:
-    LagrangianDynamics
-    ```
-    This script calculates $\mathbf{D}, \mathbf{C}, \mathbf{G}$, Jacobians, etc., and saves them as `auto_*.m` functions in the `auto` folder.
+2.  **Generate Dynamic Files**
+    **If the `auto` directory is empty**, execute this script to generate the symbolic functions (D, C, G matrices, Jacobians, etc.) required by the simulator.
+    ```matlab
+    % In MATLAB command window or script:
+    generate_files
+    ```
 
-3.  **Run the Simulation:**
-    Execute the main simulation file to run the ODE solver and see the animated results.
-    ```matlab
-    % In MATLAB command window or script:
-    simulate_jumping_leg
-    ```
-    *(For testing stance control, you can also run `simulate_leg_balance_stance`)*
-
+3.  **Run the Simulation:**
+    Read through the documentation comments in `simulate_jumping_leg.m` script. Once happy, execute the main simulation file to run the ODE solver and see the animated results.
+    ```matlab
+    % In MATLAB command window or script:
+    simulate_jumping_leg
+    ```
+    
 ---
 
 ## 📂 Repository Structure
@@ -83,28 +45,32 @@ The project is organized into logical directories for dynamics, simulation, and 
 ```
 Jumping-Humanoid-Leg/
 ├── animate/                      # Scripts for visualizing the leg's movement
-├── arduino_controller_code/      # C/C++ code for real-time control (e.g., servo control)
+├── arduino_controller_code/      # C++ code for real-time control (e.g., servo control)
 ├── auto/                         # Automatically generated functions (D, C, G matrices, etc.)
 ├── dynamics/                     # Parameters and helper functions for the dynamic model
+├── events/                       # Functions defining mode transitions (takeoff, touchdown)
 ├── media/                        # Storage for images, diagrams, and GIFs
+├── other/                        # Miscellaneous files (development/ignore)
 ├── trajectory/                   # Files defining desired joint trajectories
-├── LagrangianDynamics.m          # The core script to symbolically derive and generate dynamics
+├── generate_files.m              # Defines kinematics and dynamics symbolically and generates functions
 ├── simulate_jumping_leg.m        # Main file for running the jumping simulation (ODE solver)
-└── README.md                     # This file
+└── README.md
 ```
 
 ### Key Files
 
 | File | Purpose |
 | :--- | :--- |
-| `LagrangianDynamics.m` | Calculates the Lagrangian dynamics ($\mathbf{D}, \mathbf{C}, \mathbf{G}$) and saves the resulting functions for simulation. |
-| `simulate_jumping_leg.m` | Implements the ODE solver for the leg dynamics, integrates the equations of motion, and manages the simulation states (stance/flight). |
-| `simulate_leg_balance_stance.m`| A dedicated script for simulating the balancing or stable stance phase. |
-| `generate_files.m` | Utility script called by `LagrangianDynamics.m` to clean up and organize generated functions. |
+| `generate_files.m` | If the `auto` folder is empty, this must be run. This script sets up the kinematics and dynamics of the system symbolically and generates all required functions in the `auto` folder. |
+| `simulate_jumping_leg.m` | This is the main file that defines the parameters of the leg, implements the ODE solvers, and manages the simulation states (stance/flight) and animation. |
 
 ---
 
-## 🖼️ Results and Demos
+## 📊 Simulation Results & Demos
+
+### Controller Resilience & Perturbation Testing
+
+A visualization of the leg's ability to withstand external perturbations (pushes).
 
 <table width="100%">
   <tr>
@@ -143,15 +109,9 @@ Jumping-Humanoid-Leg/
   </tr>
 </table>
 
-### Stance Phase and Jump Sequence
+### Dynamic Jumping & Leaping
 
-A visualization of the full jump sequence, showing the compression in the stance phase, the push-off, and the resulting flight phase.
-
-
-
-### Balancing and Stability
-
-Controller perfromance can be seen below. 
+Visualizations showing the full dynamic jump sequence, controller performance, and horizontal leaps.
 
 <table width="100%">
   <tr>
@@ -192,11 +152,10 @@ Controller perfromance can be seen below.
 
 ## 💡 Future Work
 
-A first-version physical prototype was developed. A jumping characteristic was achieved using a simplified joint angle controller that drives the leg to set values.
-
 <table width="100%">
   <tr>
     <td width="60%" valign="top">
+      <p>A first-version physical prototype was developed. A jumping characteristic was achieved using a simplified joint angle controller that drives the leg to set values.</p><br>
       <p>If we had more time, and money, we would:</p>
       <ul>
         <li>Redesign the test-rig and mounting apparatus</li>
@@ -208,7 +167,7 @@ A first-version physical prototype was developed. A jumping characteristic was a
     <td width="40%" align="center" valign="top">
       <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Jumping Real Leg GIF or Concept Image" width="100%">
       <br>
-      <p>*(Physical Prototype/Concept Visual)*</p>
+      <p><b>Physical Prototype/Concept Visual</b></p>
     </td>
   </tr>
 </table>
@@ -217,4 +176,4 @@ A first-version physical prototype was developed. A jumping characteristic was a
 
 ## 📧 Contact
 
-If you have questions, please open an issue on this repository or contact the maintainer: [jabichebli]
+If you have questions, please open an issue on this repository or contact **[Jabichebli](https://github.com/jabichebli)**.
