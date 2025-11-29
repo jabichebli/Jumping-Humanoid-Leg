@@ -179,4 +179,4 @@ Visualizations showing the full dynamic jump sequence, controller performance, a
 
 ## 📧 Contact
 
-If you have questions, please open an issue on this repository or contact **[jabichebli](https://github.com/jabichebli)**.
+If you have questions, please open an issue on this repository or contact **[jabichebli](https://github.com/jabichebli)** or **[at1047](https://github.com/at1047)**.
