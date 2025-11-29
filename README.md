@@ -55,7 +55,7 @@ The hardware controller code requires:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/jabichebli/Jumping-Humanoid-Leg.git](https://github.com/jabichebli/Jumping-Humanoid-Leg.git)
+    git clone https://github.com/jabichebli/Jumping-Humanoid-Leg.git
     cd Jumping-Humanoid-Leg
     ```
 
@@ -106,36 +106,42 @@ Jumping-Humanoid-Leg/
 
 ## 🖼️ Results and Demos
 
-*(Please replace these placeholders with actual images or videos demonstrating your simulation results!)*
+ ![animation_Vertical_Pushes](https://github.com/user-attachments/assets/6681fb43-3354-46d6-a241-8d7ace9f3639)
+<img width="602" height="767" alt="Vertical_Push" src="https://github.com/user-attachments/assets/4fcabac6-2c6c-459f-9846-2b9eea584a27" />
+![animation_Horizontal_Pushes](https://github.com/user-attachments/assets/f0784f60-9b97-4812-87c6-edcd4fc86057)
+<img width="602" height="767" alt="Horizontal_Push" src="https://github.com/user-attachments/assets/40e6628c-246a-4c1e-9f72-2490f43cc2a9" />
+
 
 ### Stance Phase and Jump Sequence
 
 A visualization of the full jump sequence, showing the compression in the stance phase, the push-off, and the resulting flight phase.
 
-[GIF of the simulated jumping leg motion]
+
 
 ### Balancing and Stability
 
 An image showing the leg maintaining a stable, balanced stance position using a feedback controller.
+![jumping_leg_1](https://github.com/user-attachments/assets/de2d2c77-0670-4aec-b44c-1f11c836d2ac)
+<img width="602" height="868" alt="Hip_States_Position_During_Jump" src="https://github.com/user-attachments/assets/3dcbd422-09e2-4f22-87dd-bf0192d7025e" />
+<img width="602" height="749" alt="COM_Trajectory" src="https://github.com/user-attachments/assets/91e87833-7968-45ae-ae1f-abe7e8b06099" />
 
+![leg_leaping_animation_backwards_leap](https://github.com/user-attachments/assets/bfcf4916-9e60-49e7-bfe3-aa7743c1879f)
+![leg_leaping_animation_forward_leap](https://github.com/user-attachments/assets/e35b305f-7c8e-40ea-869e-99f3509b4769)
 
 
 ---
 
 ## 💡 Future Work
 
-The following features are planned for future development to enhance the model's accuracy and robustness:
+A first-version physical prototype was developed. A jumping characteristic was achieved using a simplified joint angle controller that drives the leg to set values.
 
-* **Virtual Constraints:** Implement virtual constraints to ensure the Center of Mass (**CoM**) remains above the stance foot position during the entire ground contact phase.
-* **Exit Velocity Calculation:** Calculate the necessary exit velocity and use it as an event trigger to smoothly transition from the stance phase to the flight phase in the ODE solver.
-* **Ground Constraints:** Implement a more robust physical constraint model to prevent the stance foot from penetrating the ground.
-* **Joint Friction:** Integrate joint friction models to better match real-world physical behavior.
+If we had more time, and money, we would:
+- Redesign the test-rig and mounting apparatus
+- Implement an IMU and do IK and FK of the leg
+- Use Brushless motors (to get force feedback for when we touch the ground)
+- Transition the stabilizing controller and jumping controller implemented in MATLAB to C# (arduino) 
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License - see the `LICENSE` file for details.
 
 ## 📧 Contact
 
