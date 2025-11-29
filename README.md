@@ -19,29 +19,26 @@ The main simulation code is written in **MATLAB**.
 
 1.  **Clone the repository:**
 
-    ```bash
-    
-    git clone [https://github.com/jabichebli/Jumping-Humanoid-Leg.git](https://github.com/jabichebli/Jumping-Humanoid-Leg.git)
-    cd Jumping-Humanoid-Leg
-    ```
+ ```bash
+ git clone https://github.com/jabichebli/Jumping-Humanoid-Leg.git
+ cd Jumping-Humanoid-Leg
+ ```
 
 2.  **Generate Dynamic Files**
     **If the `auto` directory is empty**, execute this script to generate the symbolic functions (D, C, G matrices, Jacobians, etc.) required by the simulator.
     
-    ```matlab
-    
-    % In MATLAB command window or script:
-    generate_files
-    ```
+ ```matlab
+ % In MATLAB command window or script:
+ simulate_jumping_leg
+ ```
 
 3.  **Run the Simulation:**
     Read through the documentation comments in `simulate_jumping_leg.m` script. Once happy, execute the main simulation file to run the ODE solver and see the animated results.
     
-    ```matlab
-    
-    % In MATLAB command window or script:
-    simulate_jumping_leg
-    ```
+```matlab
+% In MATLAB command window or script:
+simulate_jumping_leg
+```
     
 ---
 
