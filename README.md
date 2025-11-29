@@ -171,8 +171,8 @@ Controller perfromance can be seen below.
       <p>Balanced Stance Demonstration</p>
     </td>
   </tr>
-<!-- </table>
-<table width="100%"> -->
+</table>
+<table width="100%">
   <tr>
     <td align="center" width="50%">
       <img src="https://github.com/user-attachments/assets/e35b305f-7c8e-40ea-869e-99f3509b4769" alt="Forward Leap Animation" width="100%">
@@ -197,8 +197,6 @@ A first-version physical prototype was developed. A jumping characteristic was a
 <table width="100%">
   <tr>
     <td width="60%" valign="top">
-      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Jumping Real Leg" width="100%">
-      
       <p>If we had more time, and money, we would:</p>
       <ul>
         <li>Redesign the test-rig and mounting apparatus</li>
@@ -206,11 +204,11 @@ A first-version physical prototype was developed. A jumping characteristic was a
         <li>Use Brushless motors (to get force feedback for when we touch the ground)</li>
         <li>Transition the stabilizing controller and jumping controller implemented in MATLAB to C# (arduino) </li>
       </ul>
-      
-      .... text ...
-    </td>
+  </td>
     <td width="40%" align="center" valign="top">
-      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Jumping Real Leg GIF" width="100%">
+      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Jumping Real Leg GIF or Concept Image" width="100%">
+      <br>
+      <p>*(Physical Prototype/Concept Visual)*</p>
     </td>
   </tr>
 </table>
