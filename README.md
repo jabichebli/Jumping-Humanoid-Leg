@@ -171,14 +171,15 @@ Controller perfromance can be seen below.
       <p>Balanced Stance Demonstration</p>
     </td>
   </tr>
-  
+<!-- </table>
+<table width="100%"> -->
   <tr>
-    <td align="center" width="50%" colspan="2">
+    <td align="center" width="50%">
       <img src="https://github.com/user-attachments/assets/e35b305f-7c8e-40ea-869e-99f3509b4769" alt="Forward Leap Animation" width="100%">
       <br>
       <p>Forward Leap Animation</p>
     </td>
-    <td align="center" width="50%" colspan="1">
+    <td align="center" width="50%">
       <img src="https://github.com/user-attachments/assets/bfcf4916-9e60-49e7-bfe3-aa7743c1879f" alt="Backward Leap Animation" width="100%">
       <br>
       <p>Backward Leap Animation</p>
@@ -196,22 +197,20 @@ A first-version physical prototype was developed. A jumping characteristic was a
 <table width="100%">
   <tr>
     <td width="60%" valign="top">
-      <p>While this project successfully demonstrated the theoretical framework and simulation of a jumping humanoid leg, there are several key areas for future development to transition towards robust physical implementation and enhanced control:</p>
+      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Jumping Real Leg" width="100%">
+      
+      <p>If we had more time, and money, we would:</p>
       <ul>
-        <li><strong>Redesign Test-Rig and Mounting Apparatus:</strong> The current test-rig is functional but could be optimized for rigidity, sensor integration, and ease of modification to support more advanced experiments.</li>
-        <li><strong>Implement IMU for Kinematics:</strong> Integrating an Inertial Measurement Unit (IMU) would enable real-time Inverse Kinematics (IK) and Forward Kinematics (FK), crucial for accurate state estimation and feedback control without relying solely on joint encoders.</li>
-        <li><strong>Utilize Brushless Motors with Force Feedback:</strong> Transitioning to brushless DC motors with integrated force/torque sensors would allow for direct measurement of ground reaction forces, providing critical information for dynamic control during ground contact and push-off phases.</li>
-        <li><strong>Port Controllers to Embedded System (C++/Arduino):</strong> The existing stabilizing and jumping controllers, currently implemented in MATLAB, need to be re-engineered in C++ for real-time execution on an embedded platform like an Arduino or a more powerful microcontroller/SBC.</li>
-        <li><strong>Explore Advanced Control Strategies:</strong> Investigate more sophisticated control algorithms such as Model Predictive Control (MPC) or reinforcement learning to achieve more agile and adaptable jumping behaviors.</li>
-        <li><strong>Incorporate Multi-Contact Dynamics:</strong> Extend the model to handle more complex contact scenarios, including impacts and continuous rolling contact with the ground.</li>
-        <li><strong>Energy Efficiency Optimization:</strong> Analyze and optimize the leg's design and control strategies for improved energy efficiency, a critical factor for untethered robotic systems.</li>
+        <li>Redesign the test-rig and mounting apparatus</li>
+        <li>Implement an IMU and do IK and FK of the leg</li>
+        <li>Use Brushless motors (to get force feedback for when we touch the ground)</li>
+        <li>Transition the stabilizing controller and jumping controller implemented in MATLAB to C# (arduino) </li>
       </ul>
+      
+      .... text ...
     </td>
     <td width="40%" align="center" valign="top">
-      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Future Work Diagram/Concept" width="100%">
-      <br>
-      <p>Concept for a more advanced physical prototype or test setup.
-         *(Placeholder for a GIF demonstrating an improved physical leg or simulation concept.)*</p>
+      <img src="https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690" alt="Jumping Real Leg GIF" width="100%">
     </td>
   </tr>
 </table>
