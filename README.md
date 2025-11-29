@@ -106,11 +106,49 @@ Jumping-Humanoid-Leg/
 
 ## 🖼️ Results and Demos
 
+<table width="100%">
+  <tr>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/6681fb43-3354-46d6-a241-8d7ace9f3639" alt="Vertical Push Animation GIF" width="100%">
+      <br>
+      <p>Vertical Push Animation</p>
+    </td>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/f0784f60-9b97-4812-87c6-edcd4fc86057" alt="Horizontal Push Animation GIF" width="100%">
+      <br>
+      <p>Horizontal Push Animation</p>
+    </td>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/78c10869-c005-46d5-a10f-c2a00fee0335" alt="Combination Push Animation GIF" width="100%">
+      <br>
+      <p>Combination Push Animation</p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/4fcabac6-2c6c-459f-9846-2b9eea584a27" alt="Vertical Push Static Image" width="100%">
+      <br>
+      <p>Vertical Push Static Trajectory</p>
+    </td>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/40e6628c-246a-4c1e-9f72-2490f43cc2a9" alt="Horizontal Push Static Image" width="100%">
+      <br>
+      <p>Horizontal Push Static Trajectory</p>
+    </td>
+    <td align="center" width="33%">
+      <img src="https://github.com/user-attachments/assets/86ae061f-75b0-4db5-99aa-f204c9985538" alt="Combination Push Static Image" width="100%">
+      <br>
+      <p>Combination Push Static Trajectory</p>
+    </td>
+  </tr>
+</table>
+
  ![animation_Vertical_Pushes](https://github.com/user-attachments/assets/6681fb43-3354-46d6-a241-8d7ace9f3639)
 <img width="602" height="767" alt="Vertical_Push" src="https://github.com/user-attachments/assets/4fcabac6-2c6c-459f-9846-2b9eea584a27" />
 ![animation_Horizontal_Pushes](https://github.com/user-attachments/assets/f0784f60-9b97-4812-87c6-edcd4fc86057)
 <img width="602" height="767" alt="Horizontal_Push" src="https://github.com/user-attachments/assets/40e6628c-246a-4c1e-9f72-2490f43cc2a9" />
-
+![animation_Combination_Pushes](https://github.com/user-attachments/assets/78c10869-c005-46d5-a10f-c2a00fee0335)
+<img width="602" height="762" alt="Combo_Push" src="https://github.com/user-attachments/assets/86ae061f-75b0-4db5-99aa-f204c9985538" />
 
 ### Stance Phase and Jump Sequence
 
@@ -134,6 +172,8 @@ An image showing the leg maintaining a stable, balanced stance position using a 
 ## 💡 Future Work
 
 A first-version physical prototype was developed. A jumping characteristic was achieved using a simplified joint angle controller that drives the leg to set values.
+
+![jumping_real_leg](https://github.com/user-attachments/assets/443d9210-8300-4f32-b9cb-bd62fbb80690)
 
 If we had more time, and money, we would:
 - Redesign the test-rig and mounting apparatus
