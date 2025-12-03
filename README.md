@@ -164,7 +164,7 @@ Visualizations showing the full dynamic jump sequence, controller performance, a
         <li>Redesign the test-rig and mounting apparatus</li>
         <li>Implement an IMU and do IK and FK of the leg</li>
         <li>Use Brushless motors (to get force feedback for when we touch the ground)</li>
-        <li>Transition the stabilizing controller and jumping controller implemented in MATLAB to C# (arduino) </li>
+        <li>Transition the stabilizing controller and jumping controller implemented in MATLAB to C++ (arduino) </li>
       </ul>
   </td>
     <td width="40%" align="center" valign="top">
